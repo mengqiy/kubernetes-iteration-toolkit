@@ -8,7 +8,7 @@ All other components are able to be installed via Flux resources.
 
 ### Components:
 
-KIT Infrastructure creates a base K8s cluster with below  add-ons by default  but also provides an ability to not install some of these addons optionally through CDK context. Add-ons include permissions scoped to the pod using IAM Roles for Service Accounts (IRSA).
+KIT Infrastructure creates a base K8s cluster with below add-ons by default but also provides an ability to not install some of these addons optionally through CDK context. Add-ons include permissions scoped to the pod using IAM Roles for Service Accounts (IRSA).
 
 - EKS Cluster (host cluster)
 - EKS Managed Node Group (for critical add-ons mentioned below)
@@ -18,7 +18,52 @@ KIT Infrastructure creates a base K8s cluster with below  add-ons by default  bu
 - Flux v2
 - Kubernetes Iteration Toolkit (KIT) Operator (optional)
 
-Flux is setup, by deafult, to monitor the KIT git repo path `./infrastructure/k8s-config/clusters/kit-infrastructure`, which includes other add-ons that do not require AWS credentials such as tekton, prometheus, grafana, and the metrics-server. 
+Flux is setup, by deafult, to monitor the KIT git repo path `./infrastructure/k8s-config/clusters/kit-infrastructure`, which includes other add-ons that do not require AWS credentials such as tekton, prometheus, grafana, the metrics-server and [perf dash].
+
+#### Perf Dash
+
+Perf dash is optional. If you want to disable it, you can simply remove or comment out the content in `./infrastructure/k8s-config/clusters/kit-infrastructure/perfdash/perfdash.yaml`.
+
+To bring it up, there are a few places you need to ensure they are wired correctly.
+
+- The `logsBucket` logs bucket should be your bucket holding the logs. Ideally, it should be in the same AWS account as your KIT Infrastructure. Otherwise, you may need to configure the auth yourself.
+- A ConfigMap containing the jobs config for perf dash must be created so that it can be mounted as volume in the Deployment. An example configmap can be:
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: perfdash-config
+  namespace: perfdash
+  labels:
+    app.kubernetes.io/name: perfdash
+    app.kubernetes.io/component: config
+    app.kubernetes.io/part-of: perfdash
+data:
+  jobs.yaml: |
+    periodics:
+      - name: "kit-eks-1k"
+        tags:
+          - "perfDashPrefix: 1K test"
+          - "perfDashJobType: performance"
+      - name: "kit-eks-2k"
+        tags:
+        - "perfDashPrefix: 2k test"
+        - "perfDashJobType: performance"
+```
+- The logs for different runs in the bucket should have the layout like the following:
+```
+my-s3-bucket
+├── kit-eks-1k # note: this should match the name in perf dash config.
+│   ├── 123
+│   │   └── cl2-logs
+│   └── 124
+│       └── cl2-logs
+└── kit-eks-2k # note: this should match the name in perf dash config.
+    ├── 125
+    │   └── cl2-logs
+    └── 126
+        └── cl2-logs
+```
 
 ### Getting Started:
 
@@ -30,7 +75,7 @@ To launch the KIT infrastructure, ensure you have the following installed:
 By default, the CDK application will wire up a Flux config that will monitor for k8s manifests within the KIT repo at `infrastructure/k8s-config/clusters/kit-infrastructure`.
 The parameters supplied to the CDK app will allow you to wire up your own application's repo so that you can place tekton test files and other cluster components there.
 
- As an example, below are the parameters used for the [Karpenter](https://github.com/aws/karpenter) project.
+As an example, below are the parameters used for the [Karpenter](https://github.com/aws/karpenter) project.
 
  ```shell
 cdk bootstrap
@@ -43,8 +88,9 @@ cdk deploy KITInfrastructure --no-rollback \
   -c TestServiceAccount="karpenter-tests"
  ```
 
-  As an example, below are the parmeters used if you want to selectively disable some addons like Karpenter, EBSCSIDriver, KIT.
- ```shell
+As an example, below are the parmeters used if you want to selectively disable some addons like Karpenter, EBSCSIDriver, KIT.
+
+```shell
 cdk bootstrap
 cdk deploy KITInfrastructure --no-rollback \
   -c TestNamespace="tekton-pipelines" \
@@ -52,7 +98,7 @@ cdk deploy KITInfrastructure --no-rollback \
   -c AWSEBSCSIDriverAddon=false \
   -c KarpenterAddon=false \
   -c KITAddon=false \
- ```
+```
 
 ### Context Parameters:
 
@@ -70,3 +116,5 @@ cdk deploy KITInfrastructure --no-rollback \
 | KITAddon            | KIT CRD addon that gets installed on KIT Infrastructure by default                         | true                                                    |   |   |                               
 | KarpenterAddon      | Karpenter CRD addon that gets installed on KIT Infrastructure by default                   | true                                                    |   |   | 
 | AWSEBSCSIDriverAddon| AWSEBSCSIDriver CRD addon that gets installed on KIT Infrastructure by default             | true                                                    |   |   |
+
+[perf dash]: https://github.com/kubernetes/perf-tests/tree/master/perfdash
