@@ -19,11 +19,13 @@ export class KITInfrastructure extends Stack {
     const installEBSCSIDriverAddon = this.getContextOrDefault("AWSEBSCSIDriverAddon", "true")
     const installKarpenterAddon = this.getContextOrDefault('KarpenterAddon', "true")
     const installKitAddon = this.getContextOrDefault("KITAddon", "true")
+    const repoAddonPathsStr = this.getContextOrDefault('FluxRepoAddonPaths', "")
 
     const testRepoName = this.node.tryGetContext('TestFluxRepoName')
     const testRepoUrl = this.node.tryGetContext('TestFluxRepoURL')
     const testRepoBranch = this.node.tryGetContext('TestFluxRepoBranch')
     const testRepoPath = this.node.tryGetContext('TestFluxRepoPath')
+    const testRepoAddonPathsStr = this.getContextOrDefault('TestFluxRepoAddonPaths', "")
     const testSA = this.node.tryGetContext("TestServiceAccount")
     const testNS = this.node.tryGetContext("TestNamespace")
 
@@ -164,16 +166,20 @@ export class KITInfrastructure extends Stack {
       namespace: 'aws-fluent-bit',
     }).node.addDependency(cluster);
 
+    const repoAddonPaths = repoAddonPathsStr.split(",")
+    const testRepoAddonPaths = testRepoAddonPathsStr.split(",")
     new FluxV2(this, 'Flux', {
       cluster: cluster,
       namespace: 'flux-system',
       repoUrl: repoUrl,
       repoBranch: repoBranch,
       repoPath: repoPath,
+      repoAddonPaths: repoAddonPaths,
       testRepoName: testRepoName,
       testRepoUrl: testRepoUrl,
       testRepoBranch: testRepoBranch,
       testRepoPath: testRepoPath,
+      testRepoAddonPaths: testRepoAddonPaths,
       testNamespace: testNS,
     }).node.addDependency(cluster);
 

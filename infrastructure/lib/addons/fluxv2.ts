@@ -10,10 +10,12 @@ export interface FluxV2Props extends StackProps {
   repoUrl: string;
   repoBranch: string;
   repoPath: string;
+  repoAddonPaths?: string[];
   testRepoName: string;
   testRepoUrl?: string;
   testRepoBranch?: string;
   testRepoPath?: string;
+  testRepoAddonPaths?: string[];
   testNamespace?: string;
 }
 export class FluxV2 extends Construct {
@@ -87,7 +89,7 @@ export class FluxV2 extends Construct {
             ],
           },
       }
-  });
+    });
 
   // Bootstrap manifests
   const gitRepoManifest = props.cluster.addManifest('GitRepoSelf', {
@@ -126,6 +128,30 @@ export class FluxV2 extends Construct {
     }
   });
   kustomizationManifest.node.addDependency(chart);
+
+  if (props.repoAddonPaths) {
+    for (var repoAddonPath of props.repoAddonPaths) {
+      const addonKustomizationManifest = props.cluster.addManifest('AddonKustomizationSelf', {
+        apiVersion: 'kustomize.toolkit.fluxcd.io/v1beta1',
+        kind: 'Kustomization',
+        metadata: {
+          generateName: 'flux-addon-',
+          namespace: props.namespace,
+        },
+        spec: {
+          interval: '2m0s',
+          path: repoAddonPath,
+          prune: true,
+          sourceRef: {
+            kind: 'GitRepository',
+            name: 'flux-system'
+          },
+          validation: 'client'
+        }
+      });
+      addonKustomizationManifest.node.addDependency(chart);
+    }
+  }
 
   if (props.testRepoUrl) {
     const testGitRepoManifest = props.cluster.addManifest('TestGitRepoSelf', {
@@ -166,6 +192,30 @@ export class FluxV2 extends Construct {
       }
     });
     testKustomizationManifest.node.addDependency(chart);
+  }
+
+  if (props.testRepoAddonPaths) {
+    for (var testRepoAddonPath of props.testRepoAddonPaths) {
+      const addonKustomizationManifest = props.cluster.addManifest('TestAddonKustomizationSelf', {
+        apiVersion: 'kustomize.toolkit.fluxcd.io/v1beta1',
+        kind: 'Kustomization',
+        metadata: {
+          generateName: props.testRepoName + '-',
+          namespace: props.testNamespace,
+        },
+        spec: {
+          interval: '2m0s',
+          path: testRepoAddonPath,
+          prune: true,
+          sourceRef: {
+            kind: 'GitRepository',
+            name: props.testRepoName
+          },
+          validation: 'client'
+        }
+      });
+      addonKustomizationManifest.node.addDependency(chart);
+    }
   }
 
 }}

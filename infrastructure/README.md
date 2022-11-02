@@ -22,7 +22,7 @@ Flux is setup, by deafult, to monitor the KIT git repo path `./infrastructure/k8
 
 #### Perf Dash
 
-Perf dash is optional. If you want to disable it, you can simply remove or comment out the content in `./infrastructure/k8s-config/clusters/kit-infrastructure/perfdash/perfdash.yaml`.
+Perf dash is an optional addon and disabled by default.
 
 To bring it up, there are a few places you need to ensure they are wired correctly.
 
@@ -88,7 +88,7 @@ cdk deploy KITInfrastructure --no-rollback \
   -c TestServiceAccount="karpenter-tests"
  ```
 
-As an example, below are the parmeters used if you want to selectively disable some addons like Karpenter, EBSCSIDriver, KIT.
+As an example, below are the parmeters used if you want to selectively enable some addons like perfdash and disable some addons like Karpenter, EBSCSIDriver, KIT.
 
 ```shell
 cdk bootstrap
@@ -98,6 +98,10 @@ cdk deploy KITInfrastructure --no-rollback \
   -c AWSEBSCSIDriverAddon=false \
   -c KarpenterAddon=false \
   -c KITAddon=false \
+  -c TestFluxRepoName="myrepo" \
+  -c TestFluxRepoURL="https://github.com/myfork/kubernetes-iteration-toolkit" \
+  -c TestFluxRepoBranch="main" \
+  -c TestFluxAddonPaths="./test/infrastructure/clusters/addons/perfdash"
 ```
 
 ### Context Parameters:
@@ -107,6 +111,7 @@ cdk deploy KITInfrastructure --no-rollback \
 | FluxRepoURL         | Flux Source git repo URL to synchronize KIT infrastructure like Tekton                     | https://github.com/awslabs/kubernetes-iteration-toolkit |   |   |
 | FluxRepoBranch      | Flux Source git repo branch to synchronize KIT infrastructure                              | main                                                    |   |   |
 | FluxRepoPath        | Flux Source git repo path to Kubernetes resources                                          | ./infrastructure/k8s-config/clusters/kit-infrastructure |   |   |
+| FluxAddonPaths      | Flux Source git repo paths (separted by comma) to Kubernetes addons.                       |                                                         |   |   |
 | TestFluxRepoName    | Flux Source git repo name to synchronize application tests like Tekton Tasks and Pipelines |                                                         |   |   |
 | TestFluxRepoURL     | Flux Source git repo URL to synchronize application tests                                  |                                                         |   |   |
 | TestFluxRepoBranch  | Flux Source git repo branch to synchronize application tests                               |                                                         |   |   |
