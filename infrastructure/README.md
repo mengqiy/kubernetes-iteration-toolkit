@@ -98,10 +98,7 @@ cdk deploy KITInfrastructure --no-rollback \
   -c AWSEBSCSIDriverAddon=false \
   -c KarpenterAddon=false \
   -c KITAddon=false \
-  -c TestFluxRepoName="myrepo" \
-  -c TestFluxRepoURL="https://github.com/myfork/kubernetes-iteration-toolkit" \
-  -c TestFluxRepoBranch="main" \
-  -c TestFluxAddonPaths="./test/infrastructure/clusters/addons/perfdash"
+  -c FluxAddonPaths="./test/infrastructure/clusters/addons/perfdash"
 ```
 
 ### Context Parameters:

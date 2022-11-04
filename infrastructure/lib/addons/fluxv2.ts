@@ -10,12 +10,11 @@ export interface FluxV2Props extends StackProps {
   repoUrl: string;
   repoBranch: string;
   repoPath: string;
-  repoAddonPaths?: string[];
+  repoAddonPaths?: string;
   testRepoName: string;
   testRepoUrl?: string;
   testRepoBranch?: string;
   testRepoPath?: string;
-  testRepoAddonPaths?: string[];
   testNamespace?: string;
 }
 export class FluxV2 extends Construct {
@@ -130,12 +129,16 @@ export class FluxV2 extends Construct {
   kustomizationManifest.node.addDependency(chart);
 
   if (props.repoAddonPaths) {
-    for (var repoAddonPath of props.repoAddonPaths) {
+    for (var repoAddonPath of props.repoAddonPaths.split(",")) {
+      // Use last segment in the path and replace any non alphanumeric characters with '-' .
+      const addonName = repoAddonPath.substring(repoAddonPath.lastIndexOf('/') + 1).replace(/\W/g, '-')
       const addonKustomizationManifest = props.cluster.addManifest('AddonKustomizationSelf', {
         apiVersion: 'kustomize.toolkit.fluxcd.io/v1beta1',
         kind: 'Kustomization',
         metadata: {
-          generateName: 'flux-addon-',
+          // Flux seems to be using apply which doesn't allow generateName field,
+          // so we append a suffix here.
+          name: 'flux-addon-' + addonName,
           namespace: props.namespace,
         },
         spec: {
@@ -192,30 +195,6 @@ export class FluxV2 extends Construct {
       }
     });
     testKustomizationManifest.node.addDependency(chart);
-  }
-
-  if (props.testRepoAddonPaths) {
-    for (var testRepoAddonPath of props.testRepoAddonPaths) {
-      const addonKustomizationManifest = props.cluster.addManifest('TestAddonKustomizationSelf', {
-        apiVersion: 'kustomize.toolkit.fluxcd.io/v1beta1',
-        kind: 'Kustomization',
-        metadata: {
-          generateName: props.testRepoName + '-',
-          namespace: props.testNamespace,
-        },
-        spec: {
-          interval: '2m0s',
-          path: testRepoAddonPath,
-          prune: true,
-          sourceRef: {
-            kind: 'GitRepository',
-            name: props.testRepoName
-          },
-          validation: 'client'
-        }
-      });
-      addonKustomizationManifest.node.addDependency(chart);
-    }
   }
 
 }}

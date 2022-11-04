@@ -40,10 +40,16 @@ spec:
             - --mode=s3
             - --aws-region=us-west-2
             - --configPath=/etc/config/jobs.yaml
-            - --logsBucket=kit-eks-scalability
+            - --logsBucket=$PERFDASH_LOG_BUCKET
             - --logsPath=
             - --allow-parsers-matching-all-tests=true
           imagePullPolicy: Always
+          env:
+            - name: PERFDASH_LOG_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: perfdash-config
+                  key: PERFDASH_LOG_BUCKET
           ports:
             - name: status
               containerPort: 8080
@@ -56,6 +62,9 @@ spec:
               port: 8080
             initialDelaySeconds: 10
             timeoutSeconds: 1
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
       restartPolicy: Always
       volumes:
         - name: config-volume

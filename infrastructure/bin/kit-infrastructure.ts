@@ -4,4 +4,4 @@ import { App } from 'aws-cdk-lib';
 import { KITInfrastructure } from '../lib/kit-infrastructure';
 
 const app = new App();
-new KITInfrastructure(app, 'KITInfrastructure');
+new KITInfrastructure(app, 'KITInfrastructureMYu');
