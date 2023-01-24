@@ -36,7 +36,10 @@ jobs:
           role-session-name: samplerolesession
           aws-region: us-west-2
     - name: Install kubectl
-      uses: actions/setup-kubectl@v1      
+      run: |
+         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+         chmod +x kubectl
+         sudo mv kubectl /usr/local/bin/     
     - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
       run: |
         cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
