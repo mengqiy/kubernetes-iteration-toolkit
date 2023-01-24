@@ -6,7 +6,7 @@ on:
     branches-ignore: [main]
   workflow_dispatch: {}
 jobs:
-   build_cli:
+   build-cli:
     strategy:
       matrix:
         os: ["darwin", "linux"]
@@ -40,11 +40,9 @@ jobs:
         GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o ./bin/kitctl ./cmd/kitctl/
         cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
         go build -v .
-        ./kitctl bootstrap kit-github-${{ github.run_id }}
+        RANDOM_SUFFIX=$(openssl rand -hex 5)
+        ./kitctl bootstrap kit-github-${RANDOM_SUFFIX}
         sleep 60
-        export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
-        kubectl get pods -A
-        sleep 10
-        ./kitctl delete kit-github-${{ github.run_id }}
+        export KUBECONFIG=/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX}/etc/kubernetes/admin.conf
+        ./kitctl delete kit-github-${RANDOM_SUFFIX}
       working-directory: substrate
-  
