@@ -45,7 +45,7 @@ jobs:
         cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
         GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
         RANDOM_SUFFIX=$(openssl rand -hex 5)
-        ./kitctl bootstrap kit-github-${RANDOM_SUFFIX}
+        kitctl bootstrap kit-github-${RANDOM_SUFFIX}
         sleep 160
         export KUBECONFIG=/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX}/etc/kubernetes/admin.conf
         sleep 10
