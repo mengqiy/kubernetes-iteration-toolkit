@@ -40,11 +40,11 @@ jobs:
       run: |
         cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
         go build -v .
-        RANDOM_SUFFIX=$(openssl rand -hex 5)
-        ./kitctl bootstrap kit-github-${RANDOM_SUFFIX}
+        
+        ./kitctl bootstrap kit-github-${{ github.run_id }}
         sleep 10
-        export KUBECONFIG=/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX}/etc/kubernetes/admin.conf
+        export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
         sleep 10
         kubectl get pods -A
-        ./kitctl delete kit-github-${RANDOM_SUFFIX}
+        ./kitctl delete kit-github-${{ github.run_id }}
       working-directory: substrate
