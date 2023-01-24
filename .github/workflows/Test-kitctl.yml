@@ -40,11 +40,10 @@ jobs:
       run: |
         cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
         go build -v .
-        
         ./kitctl bootstrap kit-github-${{ github.run_id }}
-        sleep 10
         export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
-        sleep 10
         kubectl get pods -A
+        ./kitctl delete kit-github-${{ github.run_id }}
+        sleep 30
         ./kitctl delete kit-github-${{ github.run_id }}
       working-directory: substrate
