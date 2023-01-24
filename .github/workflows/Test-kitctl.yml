@@ -43,7 +43,7 @@ jobs:
     - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
       run: |
         cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
+        go build -v .
         ./kitctl bootstrap kit-github-${{ github.run_id }}
         sleep 160
         export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
