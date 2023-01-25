@@ -45,7 +45,7 @@ jobs:
           cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
-          sleep 10
+          sleep 30
           export KUBECONFIG=/Users/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
           sleep 10
           kubectl get pods -A
@@ -100,7 +100,7 @@ jobs:
           cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
-          sleep 10
+          sleep 30
           export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
           sleep 10
           kubectl get pods -A
