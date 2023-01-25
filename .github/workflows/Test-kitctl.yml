@@ -29,7 +29,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
           role-to-assume:  arn:aws:iam::078365735624:role/github-Token-generate
-          aws-region: us-east-1
+          aws-region: us-west-2
     - name: Install kubectl
       run: |
          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
