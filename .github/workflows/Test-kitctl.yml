@@ -40,17 +40,13 @@ jobs:
           fi
         working-directory: substrate
   build-cli-linux:
-    strategy:
-      matrix:
-        os: ["linux"]
-        arch: ["amd64"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/install-go
       - name: Install kubectl
         run: |
-         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
+         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
          chmod +x kubectl
          sudo mv kubectl /usr/local/bin/    
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
