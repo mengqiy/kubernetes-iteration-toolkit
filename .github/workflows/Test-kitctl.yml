@@ -13,7 +13,8 @@ jobs:
     name: kitctl-Test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2.3.4 
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v2
     - uses: ./.github/actions/install-go
     - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
       run: |
