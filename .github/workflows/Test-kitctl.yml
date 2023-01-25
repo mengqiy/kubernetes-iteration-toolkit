@@ -13,7 +13,7 @@ jobs:
     name: kitctl-Test
     runs-on: ubuntu-latest
     steps:
-    - uses: ./.github/actions/Go-setup/action
+    - uses: ./.github/workflows/action.yml
     - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
       run: |
         cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
