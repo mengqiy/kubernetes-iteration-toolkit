@@ -20,6 +20,8 @@ jobs:
       - uses: ./.github/actions/install-go
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
         run: |
+          pwd
+          ls -lta
           cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
