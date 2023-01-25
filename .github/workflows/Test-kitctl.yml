@@ -6,30 +6,60 @@ on:
     branches-ignore: [main]
   workflow_dispatch: {}
 permissions:
-       id-token: write
-       contents: read
+  id-token: write
+  contents: read
 jobs:
-   build-cli:
-    name: kitctl-Test
+  build-cli-macos:
+    strategy:
+      matrix:
+        os: ["darwin"]
+        arch: ["amd64"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/install-go
+      - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
+        run: |
+          cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
+          ./kitctl bootstrap kit-github-${{ github.run_id }}
+          export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
+          kubectl get pods -A
+          for i in {1..5}; do
+          if ./kitctl delete kit-github-${{ github.run_id }}; then
+            break
+          fi
+          sleep 20
+          done
+          if [ $i -eq 5 ]; then
+            echo "Failed to delete the kit-github-${{ github.run_id }} environment after 5 attempts. Please manually delete the environment."
+            exit 1
+          fi
+        working-directory: substrate
+  build-cli-linux:
+    strategy:
+      matrix:
+        os: ["linux"]
+        arch: ["amd64"]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: ./.github/actions/install-go
-    - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
-      run: |
-        cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-        go build -v .
-        ./kitctl bootstrap kit-github-${{ github.run_id }}
-        export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
-        kubectl get pods -A
-        for i in {1..5}; do
-        if ./kitctl delete kit-github-${{ github.run_id }}; then
-          break
-        fi
-        sleep 20
-        done
-        if [ $i -eq 5 ]; then
-          echo "Failed to delete the kit-github-${{ github.run_id }} environment after 5 attempts. Please manually delete the environment."
-          exit 1
-        fi
-      working-directory: substrate
+      - uses: actions/checkout@v2
+      - uses: ./.github/actions/install-go
+      - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
+        run: |
+          cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
+          ./kitctl bootstrap kit-github-${{ github.run_id }}
+          export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
+          kubectl get pods -A
+          for i in {1..5}; do
+          if ./kitctl delete kit-github-${{ github.run_id }}; then
+            break
+          fi
+          sleep 20
+          done
+          if [ $i -eq 5 ]; then
+            echo "Failed to delete the kit-github-${{ github.run_id }} environment after 5 attempts. Please manually delete the environment."
+            exit 1
+          fi
+        working-directory: substrate
