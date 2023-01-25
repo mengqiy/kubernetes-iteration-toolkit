@@ -10,6 +10,10 @@ permissions:
   contents: read
 jobs:
   build-cli-macos:
+    strategy:
+        matrix:
+          os: ["darwin"]
+          arch: ["amd64"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -24,7 +28,7 @@ jobs:
           pwd
           ls -lta
           cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-          go build -v .
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
           export KUBECONFIG=/Users/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
           kubectl get pods -A
@@ -40,6 +44,10 @@ jobs:
           fi
         working-directory: substrate
   build-cli-linux:
+    strategy:
+        matrix:
+          os: ["linux"]
+          arch: ["amd64"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -52,7 +60,7 @@ jobs:
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
         run: |
           cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-          go build -v .
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
           export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
           kubectl get pods -A
