@@ -17,7 +17,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/install-go
       - name: Install kubectl
         run: |
@@ -52,7 +53,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v2  
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/install-go
       - name: Install kubectl
         run: |
