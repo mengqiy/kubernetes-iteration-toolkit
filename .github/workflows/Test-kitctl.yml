@@ -100,7 +100,9 @@ jobs:
           cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
+          sleep 10
           export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
+          sleep 10
           kubectl get pods -A
           for i in {1..5}; do
           if ./kitctl delete kit-github-${{ github.run_id }}; then
