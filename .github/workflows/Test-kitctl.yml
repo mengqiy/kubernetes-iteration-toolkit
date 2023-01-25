@@ -14,6 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/install-go
+      - name: Install kubectl
+        run: |
+         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
+         chmod +x kubectl
+         sudo mv kubectl /usr/local/bin/   
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
         run: |
           pwd
@@ -43,10 +48,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/install-go
+      - name: Install kubectl
+        run: |
+         curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
+         chmod +x kubectl
+         sudo mv kubectl /usr/local/bin/    
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
         run: |
           cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
+          go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
           export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
           kubectl get pods -A
