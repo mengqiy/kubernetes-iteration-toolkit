@@ -1,0 +1,21 @@
+name: ReleaseTrigger
+on:
+  pull_request:
+      branches: [main]
+  push:
+      branches-ignore: [main]    
+jobs:
+  release-trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Save tag and SHA as an artifact for other workflows that run on workflow_run to download them
+        run: |
+          mkdir -p /tmp/artifacts
+          TAG=$(git describe --tags --exact-match || echo "no tag")
+          echo "${TAG}" > /tmp/artifacts/metadata.txt
+          git rev-parse HEAD >> /tmp/artifacts/metadata.txt
+          echo "metadata.txt contents:"
+          cat /tmp/artifacts/metadata.txt
+          echo "TAG=$TAG" >> $GITHUB_ENV
+      - uses: ./.github/actions/upload-artifact
