@@ -9,7 +9,7 @@ permissions:
   contents: write
 jobs:
   kitctl-build:
-    #if: github.event.workflow_run.conclusion == 'success' && github.repository == 'Ganiredi/kubernetes-iteration-toolkit' && contains(fromJson('["push"]'), github.event.workflow_run.event)
+    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'Ganiredi/kubernetes-iteration-toolkit' && contains(fromJson('["push"]'), github.event.workflow_run.event)
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
