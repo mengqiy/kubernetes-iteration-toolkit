@@ -1,8 +1,8 @@
 name: Release
 on:
-  workflow_run:
-    workflows: [ReleaseTrigger,Testkitctl]
-    types: [completed]
+  push:
+    tags: ['v*.*.*']
+    branches: [ main ]
 permissions:
   id-token: write
   pull-requests: write
@@ -12,14 +12,7 @@ jobs:
    #if: github.event.workflow_run.conclusion == 'success' && github.repository == 'Ganiredi/kubernetes-iteration-toolkit' && contains(fromJson('["push"]'), github.event.workflow_run.event)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/download-artifact
-      - run: |
-          tag=$(head -n 1 /tmp/artifacts/metadata.txt)
-          tag_commit=$(tail -n 1 /tmp/artifacts/metadata.txt)
-          echo "TAG_COMMIT=$tag_commit" >> $GITHUB_ENV
-          echo "TAG=$tag" >> $GITHUB_ENV
-      - name: Checkout the repository out again at the given SHA from the artifact
+      - name: will run childworkflow
         uses: actions/checkout@v3
       - uses: ./.github/actions/install-go-and-dependencies
       - uses: ./.github/actions/authenticate-aws
