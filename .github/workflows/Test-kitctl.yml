@@ -21,14 +21,12 @@ jobs:
       - name: Install kubectl
         run: |
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            KUBECTL_URL="https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-            chmod +x kubectl
-            sudo mv kubectl /usr/local/bin/
+            curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            KUBECTL_URL="https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
-            chmod +x kubectl
-            sudo mv kubectl /usr/local/bin/
+            curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"  
           fi
+          chmod +x kubectl
+            sudo mv kubectl /usr/local/bin/
            
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
         run: |
