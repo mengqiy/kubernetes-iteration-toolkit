@@ -32,7 +32,7 @@ jobs:
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           fi
-          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
+          go build -v .
           RANDOM_SUFFIX_1=$(openssl rand -hex 5)
           RANDOM_SUFFIX_2=$(openssl rand -hex 5)
           ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_1}
