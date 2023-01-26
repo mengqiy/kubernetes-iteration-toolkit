@@ -42,8 +42,8 @@ jobs:
               else
                 cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
                 go build -v .
-                ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_1}
-                export KUBECONFIG=/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_1}/etc/kubernetes/admin.conf
+                ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_2}
+                export KUBECONFIG=/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_2}/etc/kubernetes/admin.conf
                  kubectl get pods -A
                 ./kitctl delete kit-github-${RANDOM_SUFFIX_2}
               fi      
