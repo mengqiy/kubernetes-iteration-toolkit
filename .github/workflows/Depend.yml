@@ -7,7 +7,7 @@ permissions:
   pull-requests: write
   contents: write
 jobs:
-  release:
+  Dependent:
     if: github.repository == 'Ganiredi/kubernetes-iteration-toolkit'
     runs-on: ubuntu-latest
     steps:

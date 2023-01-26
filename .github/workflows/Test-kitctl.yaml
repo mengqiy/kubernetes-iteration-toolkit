@@ -1,4 +1,4 @@
-name: workflow automates the build, testing, and bootstrapping of a test environment on Kubernetes
+name: kitctl-build
 on:
   workflow_run:
     workflows: [Dependent]
