@@ -1,14 +1,13 @@
 name: workflow automates the build, testing, and bootstrapping of a test environment on Kubernetes
 on:
-  workflow_run:
-    workflows: [Dependent]
-    types: [completed]
+  push:
+    branches: ['main' ,'Github-Workflow-Kitctl']
 permissions:
   id-token: write
   pull-requests: write
   contents: write
 jobs:
-  release:
+  kitctl-build:
     if: github.event.workflow_run.conclusion == 'success' && github.repository == 'Ganiredi/kubernetes-iteration-toolkit' 
     strategy:
       matrix:

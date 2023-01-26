@@ -1,7 +1,13 @@
 name: Dependent
+
 on:
+  pull_request:
+    branches: [main]
   push:
-    branches: ['main' ,'Github-Workflow-Kitctl']
+    branches-ignore: [main]
+  workflow_run:
+    workflows: [Dependent]
+    types: [completed]  
 permissions:
   id-token: write
   pull-requests: write
