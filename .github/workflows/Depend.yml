@@ -1,8 +1,7 @@
 name: Workflow-run-dependent
 on:
   push:
-    tags: ['v*']
-  workflow_dispatch: {}
+    branches: ['main' ,'Github-Workflow-Kitctl']
 permissions:
   id-token: write
   pull-requests: write
@@ -11,6 +10,6 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: will run childworkflow
+      - name: Used for parent workflow file
         uses: actions/checkout@v3
       - uses: ./.github/actions/authenticate-aws
