@@ -1,4 +1,4 @@
-name: Release
+name: Workflow-run-dependent
 on:
   push:
     tags: ['v*']
@@ -13,5 +13,4 @@ jobs:
     steps:
       - name: will run childworkflow
         uses: actions/checkout@v3
-      - uses: ./.github/actions/install-go-and-dependencies
       - uses: ./.github/actions/authenticate-aws

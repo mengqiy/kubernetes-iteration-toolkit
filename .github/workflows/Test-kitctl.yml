@@ -1,7 +1,7 @@
-name: Testkitctl
+name: This workflow automates the build, testing, and bootstrapping of a test environment on Kubernetes
 on:
   workflow_run:
-    workflows: [Release]
+    workflows: [Workflow-run-dependent]
     types: [completed]
 permissions:
   id-token: write
