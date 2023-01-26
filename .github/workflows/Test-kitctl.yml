@@ -44,12 +44,12 @@ jobs:
         run: |
           cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
-          ./kitctl bootstrap kit-github-${{ github.run_id }}
-          sleep 120
-          export KUBECONFIG=/Users/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
+          RANDOM_SUFFIX=$(openssl rand -hex 5)
+          ./kitctl bootstrap kit-github-${RANDOM_SUFFIX}
+          export KUBECONFIG=/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX}/etc/kubernetes/admin.conf
           kubectl get pods -A
           for i in {1..5}; do
-           if ./kitctl delete kit-github-${{ github.run_id }}; then
+           if ./kitctl delete kit-github-${RANDOM_SUFFIX}; then
            break
           fi
           if [ $i -eq 1 ]; then
@@ -59,7 +59,7 @@ jobs:
           fi
           done
           if [ $i -eq 5 ]; then
-              echo "Failed to delete the kit-github-${{ github.run_id }} environment after 5 attempts. Please manually delete the environment."
+              echo "Failed to delete the kit-github-${RANDOM_SUFFIX} environment after 5 attempts. Please manually delete the environment."
               exit 1
           fi
         working-directory: substrate
