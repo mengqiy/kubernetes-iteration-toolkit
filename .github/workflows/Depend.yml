@@ -1,4 +1,4 @@
-name: Workflow-run-dependent
+name: Dependent
 on:
   push:
     branches: ['main' ,'Github-Workflow-Kitctl']
