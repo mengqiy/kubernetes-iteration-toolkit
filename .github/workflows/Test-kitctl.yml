@@ -38,19 +38,19 @@ jobs:
           cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           go build -v .
           for i in 1 2; do
-          ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_$i}
-          export KUBECONFIG= ${matrix.os == "ubuntu-latest" ? "/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf" : "/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf"}
-          kubectl get pods -A
-          for ((k=1; k<=5; k++)); do
-          if ./kitctl delete kit-github-${RANDOM_SUFFIX_$i}; then
-          break
-          fi
-          if [ $k -eq 1 ]; then
-          sleep 220
-          else
-          sleep 60
-          fi
-          done
+            ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_$i}
+            export KUBECONFIG= ${matrix.os == "ubuntu-latest" ? "/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf" : "/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf"}
+            kubectl get pods -A
+           for i in {1..5}; doo
+              if ./kitctl delete kit-github-${RANDOM_SUFFIX_$i}; then
+              break
+              fi
+              if [ $k -eq 1 ]; then
+                sleep 220
+              else
+                sleep 60
+              fi
+           done
           done
 
         working-directory: substrate
