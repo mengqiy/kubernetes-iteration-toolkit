@@ -1,7 +1,8 @@
 name: workflow automates the build, testing, and bootstrapping of a test environment on Kubernetes
 on:
-  push:
-    branches: ['main' ,'Github-Workflow-Kitctl']
+  workflow_run:
+    workflows: [Dependent]
+    types: [completed]
 permissions:
   id-token: write
   pull-requests: write
