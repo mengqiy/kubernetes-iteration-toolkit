@@ -25,24 +25,27 @@ jobs:
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             KUBECTL_URL="https://storage.googleapis.com/kubernetes-release/release/$(curl -L -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl"
           fi
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
         run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-          fi
-          go build -v .
           RANDOM_SUFFIX_1=$(openssl rand -hex 5)
           RANDOM_SUFFIX_2=$(openssl rand -hex 5)
-          ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_1}
-          export KUBECONFIG=/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_1}/etc/kubernetes/admin.conf
-          kubectl get pods -A
-          for i in {1..5}; do
-            if ./kitctl delete kit-github-${RANDOM_SUFFIX_2}; then
+          for i in {1..2}; do
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl  
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
+          fi 
+          go build -v .
+          ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_$i}
+           export KUBECONFIG=/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf
+            kubectl get pods -A
+            for $k in {1..5}; do
+            if ./kitctl delete kit-github-${RANDOM_SUFFIX_$i}; then
               break
             fi
-            if [ $i -eq 1 ]; then
+            if [ $k -eq 1 ]; then
                 sleep 220
             else
                 sleep 30
