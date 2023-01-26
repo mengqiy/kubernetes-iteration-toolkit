@@ -35,6 +35,7 @@ jobs:
           for i in {1..2}; do
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
             cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl  
+            break
           elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           fi 
@@ -51,5 +52,6 @@ jobs:
             else
                 sleep 30
             fi
+            done
         working-directory: substrate
 
