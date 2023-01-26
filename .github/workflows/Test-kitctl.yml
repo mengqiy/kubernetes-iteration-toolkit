@@ -100,19 +100,23 @@ jobs:
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
           export KUBECONFIG=/home/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
-          kubectl get pods
+          kubectl get pods -A
           for i in {1..5}; do
           if ./kitctl delete kit-github-${{ github.run_id }}; then
-           break
+              echo "Successfully deleted kit-github-${{ github.run_id }} on attempt $i"
+              break
+          else
+              echo "Attempt $i to delete kit-github-${{ github.run_id }} failed with exit code $?, retrying in $sleep_time seconds"
           fi
           if [ $i -eq 1 ]; then
-              sleep 220
+              sleep_time=220
           else
-              sleep 60
+              sleep_time=60
           fi
+          sleep $sleep_time
           done
           if [ $i -eq 5 ]; then
-              echo "Failed to delete the kit-github-${{ github.run_id }} environment after 5 attempts. Please manually delete the environment."
+              echo "Failed to delete the kit-github-${{ github.run_id }} environment after 5 attempts. Please check the logs and manually delete the environment."
               exit 1
           fi
         working-directory: substrate
