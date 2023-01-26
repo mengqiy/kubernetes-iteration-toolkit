@@ -41,7 +41,7 @@ jobs:
             ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_$i}
             export KUBECONFIG= ${matrix.os == "ubuntu-latest" ? "/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf" : "/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf"}
             kubectl get pods -A
-           for i in {1..5}; doo
+           for i in {1..5}; do
               if ./kitctl delete kit-github-${RANDOM_SUFFIX_$i}; then
               break
               fi
