@@ -33,9 +33,9 @@ jobs:
           RANDOM_SUFFIX_1=$(openssl rand -hex 5)
           RANDOM_SUFFIX_2=$(openssl rand -hex 5)
           if matrix.os == "ubuntu-latest":
-          cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl/
+          cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           else:
-          cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl/
+          cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           go build -v .
           for i in 1 2; do
             ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_$i}
