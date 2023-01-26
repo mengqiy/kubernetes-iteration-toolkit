@@ -33,17 +33,19 @@ jobs:
               RANDOM_SUFFIX_1=$(openssl rand -hex 5)
               RANDOM_SUFFIX_2=$(openssl rand -hex 5)
               if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-                cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
+                cd ${HOME}/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
                 go build -v .
                 ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_1}
-                export KUBECONFIG=/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX_1}/etc/kubernetes/admin.conf
+                export KUBECONFIG=${HOME}/.kit/env/kit-github-${RANDOM_SUFFIX_1}/etc/kubernetes/admin.conf
+                sleep 10
                 kubectl get pods -A
                 ./kitctl delete kit-github-${RANDOM_SUFFIX_1}
               else
-                cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
+                cd ${HOME}/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
                 go build -v .
                 ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_2}
-                export KUBECONFIG=/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_2}/etc/kubernetes/admin.conf
+                export KUBECONFIG=${HOME}/.kit/env/kit-github-${RANDOM_SUFFIX_2}/etc/kubernetes/admin.conf
+                sleep 10
                  kubectl get pods -A
                 ./kitctl delete kit-github-${RANDOM_SUFFIX_2}
               fi      
