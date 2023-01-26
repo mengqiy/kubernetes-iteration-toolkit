@@ -45,18 +45,17 @@ jobs:
           cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v .
           ./kitctl bootstrap kit-github-${{ github.run_id }}
-          timeout 120
+          sleep 120
           export KUBECONFIG=/Users/runner/.kit/env/kit-github-${{ github.run_id }}/etc/kubernetes/admin.conf
-          timeout 10
           kubectl get pods -A
           for i in {1..5}; do
            if ./kitctl delete kit-github-${{ github.run_id }}; then
            break
           fi
           if [ $i -eq 1 ]; then
-              timeout 120
+              sleep 120
           else
-              timeout 30
+              sleep 30
           fi
           done
           if [ $i -eq 5 ]; then
