@@ -1,9 +1,5 @@
 name: Testkitctl
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches-ignore: [main]
   workflow_run:
     workflows: [Release]
     types: [completed]
