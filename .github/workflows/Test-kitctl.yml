@@ -30,27 +30,21 @@ jobs:
 
       - name: Builds the KIT CLI ,Provisions the Kit Environment and deletes it
         run: |
-          for k in {1..2}; do
-              RANDOM_SUFFIX_$k=$(openssl rand -hex 5)
-              RANDOM_SUFFIX_$k=$(openssl rand -hex 5)
+              RANDOM_SUFFIX_1=$(openssl rand -hex 5)
+              RANDOM_SUFFIX_2=$(openssl rand -hex 5)
               if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
                 cd /home/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
+                go build -v .
+                ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_1}
+                export KUBECONFIG=/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX_1}/etc/kubernetes/admin.conf
+                kubectl get pods -A
+                ./kitctl delete kit-github-${RANDOM_SUFFIX_1}
               else
                 cd /Users/runner/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-              fi
-              go build -v .
-              for i in {1..2}; do
-                ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_$k}
-                export KUBECONFIG= ${matrix.os == "ubuntu-latest" ? "/home/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf" : "/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_$i}/etc/kubernetes/admin.conf"}
-                kubectl get pods -A
-                for j in {1..5}; do
-                  ./kitctl delete kit-github-${RANDOM_SUFFIX_$i}
-                  if [ $j -eq 1 -a $i -eq 1 ]; then
-                    sleep 220
-                  else
-                    sleep 60
-                  fi
-                done
-              done  
-           done           
+                go build -v .
+                ./kitctl bootstrap kit-github-${RANDOM_SUFFIX_1}
+                export KUBECONFIG=/Users/runner/.kit/env/kit-github-${RANDOM_SUFFIX_1}/etc/kubernetes/admin.conf
+                 kubectl get pods -A
+                ./kitctl delete kit-github-${RANDOM_SUFFIX_2}
+              fi      
         working-directory: substrate
