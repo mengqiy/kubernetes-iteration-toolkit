@@ -1,4 +1,4 @@
-name: dependent
+name: depend
 on:
   push:
     branches: [Github-Workflow-Kitctl]
@@ -7,7 +7,7 @@ permissions:
   pull-requests: write
   contents: write
 jobs:
-  dependent:
+  depend:
     if: github.repository == 'Ganiredi/kubernetes-iteration-toolkit'
     runs-on: ubuntu-latest
     steps:

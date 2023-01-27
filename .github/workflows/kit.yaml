@@ -1,4 +1,4 @@
-name: kitctl-build
+name: kit
 on:
   workflow_run:
     workflows: [Depend]
@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
   contents: write
 jobs:
-  kitctl-build:
+  kit:
     if: github.event.workflow_run.conclusion == 'success' && github.repository == 'Ganiredi/kubernetes-iteration-toolkit' && contains(fromJson('["push"]'), github.event.workflow_run.event)
     strategy:
       matrix:
