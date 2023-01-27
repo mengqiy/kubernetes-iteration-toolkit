@@ -1,7 +1,7 @@
 name: depend
 on:
   push:
-    branches: [Github-Workflow-Kitctl]
+    branches: [ 'main' , 'Github-Workflow-Kitctl']
 permissions:
   id-token: write
   pull-requests: write
