@@ -1,8 +1,9 @@
 name: kitctl-build
 on:
   workflow_run:
-    workflows: [dependent]
-    types: [completed]
+    workflows: [Depend]
+    types:
+      - completed
 permissions:
   id-token: write
   pull-requests: write
