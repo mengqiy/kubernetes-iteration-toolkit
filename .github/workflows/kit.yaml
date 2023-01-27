@@ -2,15 +2,14 @@ name: kit
 on:
   workflow_run:
     workflows: [Depend]
-    types:
-      - completed
+    types: [completed]
 permissions:
   id-token: write
   pull-requests: write
   contents: write
 jobs:
   kit:
-    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'Ganiredi/kubernetes-iteration-toolkit' && contains(fromJson('["push"]'), github.event.workflow_run.event)
+    if: contains(fromJson('["push"]'), github.event.workflow_run.event) && github.repository == 'Ganiredi/kubernetes-iteration-toolkit'
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
