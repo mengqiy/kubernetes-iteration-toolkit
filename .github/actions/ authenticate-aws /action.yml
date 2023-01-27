@@ -1,4 +1,4 @@
-name: AuthenticateAWS
+name: authenticateAWS
 description: 'Authenticates against the AWS account with OIDC'
 runs:
   using: "composite"
