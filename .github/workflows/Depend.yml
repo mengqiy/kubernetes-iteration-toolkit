@@ -14,4 +14,4 @@ jobs:
       - uses: actions/checkout@v2
       - name: Check the permission of authenticate-aws
         run: ls -la .github/actions/authenticate-aws
-      - uses: ./.github/actions/authenticate-aws
+      - uses: ./.github/actions/%20authenticate-aws%20
