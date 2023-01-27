@@ -12,4 +12,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+         ls -la .github/actions/authenticate-aws
       - uses: ./.github/actions/authenticate-aws
