@@ -12,5 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-         ls -la .github/actions/authenticate-aws
+      - name: Check the permission of authenticate-aws
+        run: ls -la .github/actions/authenticate-aws
       - uses: ./.github/actions/authenticate-aws
