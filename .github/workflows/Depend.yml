@@ -11,7 +11,5 @@ jobs:
     if: github.repository == 'Ganiredi/kubernetes-iteration-toolkit'
     runs-on: ubuntu-latest
     steps:
-      -  uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       -  uses: ./.github/actions/authenticate-aws
-      -  name: Set output variable
-         run: echo ::set-output name=depend_status::success
