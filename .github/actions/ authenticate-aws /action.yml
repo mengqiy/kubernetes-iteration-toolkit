@@ -3,7 +3,7 @@ description: 'Authenticates against the AWS account with OIDC'
 runs:
   using: "composite"
   steps:
-    - uses: aws-actions/configure-aws-credentials@v1
+    - uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         role-to-assume: arn:aws:iam::078365735624:role/github-Token-generate
         aws-region: us-west-2
