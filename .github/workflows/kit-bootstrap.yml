@@ -1,26 +1,28 @@
-name: kit
+name: kit-bootstrap
 on:
-  workflow_run:
-    workflows: [depend]
-    types: [completed]
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch: {}
 permissions:
   id-token: write
   pull-requests: write
   contents: read
+  #Dummy chnage
 jobs:
   kit:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        arch: ["amd64"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: ./.github/actions/install-go-and-dependencies
       - uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::953421922360:role/kit-Github-workflow
-          role-session-name: githubworkflowsession-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PERFLAB }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PERFLAB }}
           aws-region: us-west-2   
       - name: Install kubectl
         run: |
