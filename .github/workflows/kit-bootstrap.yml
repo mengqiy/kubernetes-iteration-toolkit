@@ -1,18 +1,18 @@
-name: kit
+name: kit-bootstrap
 on:
   workflow_run:
-    workflows: [depend]
+    workflows: [Trigger-kit]
     types: [completed]
 permissions:
   id-token: write
   pull-requests: write
   contents: read
+  # Dummy chnage to check the subsequent pr will trigger the workflow or not 
 jobs:
   kit:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        arch: ["amd64"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -20,8 +20,8 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::953421922360:role/kit-Github-workflow
-          role-session-name: githubworkflowsession-1
-          aws-region: us-west-2   
+          role-session-name: githubworkflowsession
+          aws-region: us-west-2    
       - name: Install kubectl
         run: |
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
