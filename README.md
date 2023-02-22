@@ -1,5 +1,6 @@
 # What is Kubernetes Iteration Toolkit?
 
+![example workflow](https://github.com/Ganiredi/kubernetes-iteration-toolkit/github/workflows/kit-new.yaml/badge.svg)(https://github.com/Ganiredi/kubernetes-iteration-toolkit/actions)
 ## What is KIT?
 
 [KIT](https://github.com/awslabs/kubernetes-iteration-toolkit) is a set of decoupled tools designed to accelerate the development of Kubernetes through testing. It combines a variety of open source projects to define an opinionated way to rapidly configure and test Kubernetes components on AWS.

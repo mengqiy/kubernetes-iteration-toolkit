@@ -1,4 +1,7 @@
+![example workflow](https://github.com/github/docs/actions/workflows/kit-new.yml/badge.svg)
 # kitctl
+![example event parameter](https://github.com/github/docs/actions/workflows/build.yaml/badge.svg?event=push)
+
 
 ## Installing kitctl
 
