@@ -1,4 +1,6 @@
 # What is Kubernetes Iteration Toolkit?
+![Kit Test](https://github.com/ mengqiy/kubernetes-iteration-toolkit/actions/workflows/kit-new.yml/badge.svg?branch=sg-validation)
+
 
 ## What is KIT?
 
@@ -19,6 +21,7 @@ KIT Environments provide an opinionated testing environment with support for tes
 Additionally, KIT Environments provide a library of predefined [Tasks](https://github.com/awslabs/kubernetes-iteration-toolkit/tree/c6925e3db92ae909cafb2751b153dd8221d6fd55/tests/tasks) to configure clusters, generate load, and analyze results. For example, you can combine the “MegaXL KIT cluster” task and “upstream pod density load generator” task to reproduce the scalability team’s MegaXL test results. You can then swap in the “EKS Cluster” task and verify the results as improvements are merged into EKS. You can also parameterize existing tasks or define your own to meet your use cases.
 
 ## What are KIT clusters?
+
 
 KIT clusters enables developers to declaratively configure eks-like clusters with arbitrary modifications. Using a Kubernetes CRD, you can modify the EC2 instance types, container image, environment variables, or command line arguments of any cluster component. These configurations can be [checked into git](https://github.com/awslabs/kubernetes-iteration-toolkit/blob/main/operator/docs/examples/cluster-1.21.yaml) and reproduced for periodic regression testing or against new test scenarios.
 
