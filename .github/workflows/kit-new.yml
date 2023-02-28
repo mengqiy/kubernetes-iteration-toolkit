@@ -1,10 +1,9 @@
 #name: This workflow automates the build, testing, and bootstrapping of a test environment on Kubernetes using KIT CLI
 name:  sg-validation
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_run:
+    workflows: [trigger-kit-CI]
+    types: [completed]
 permissions:
   id-token: write
   pull-requests: write
@@ -161,5 +160,6 @@ jobs:
               done
               # dummy 1
               # dummy 2
+
         continue-on-error: true
         working-directory: substrate
