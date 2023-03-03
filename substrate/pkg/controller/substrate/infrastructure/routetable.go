@@ -17,6 +17,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -72,21 +73,27 @@ func (r *RouteTable) ensure(ctx context.Context, substrate *v1alpha1.Substrate, 
 }
 
 func (r *RouteTable) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	describeRouteTablesOutput, err := r.EC2.DescribeRouteTablesWithContext(ctx, &ec2.DescribeRouteTablesInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing route tables, %w", err)
-	}
-	if len(describeRouteTablesOutput.RouteTables) == 0 {
-		return reconcile.Result{}, nil
-	}
-	for _, routeTable := range describeRouteTablesOutput.RouteTables {
-		if _, err := r.EC2.DeleteRouteTableWithContext(ctx, &ec2.DeleteRouteTableInput{RouteTableId: routeTable.RouteTableId}); err != nil {
-			if err.(awserr.Error).Code() == "DependencyViolation" {
-				return reconcile.Result{Requeue: true}, nil
-			}
-			return reconcile.Result{}, fmt.Errorf("deleting route table, %w", err)
-		}
-		logging.FromContext(ctx).Infof("Deleted route table %s", aws.StringValue(routeTable.RouteTableId))
-	}
-	return reconcile.Result{}, nil
+    log.Printf("Entering RouteTable.Delete function with substrate %v", substrate)
+    describeRouteTablesOutput, err := r.EC2.DescribeRouteTablesWithContext(ctx, &ec2.DescribeRouteTablesInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe route tables: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing route tables, %w", err)
+    }
+    if len(describeRouteTablesOutput.RouteTables) == 0 {
+        log.Printf("No route tables found for substrate %v", substrate)
+        return reconcile.Result{}, nil
+    }
+    for _, routeTable := range describeRouteTablesOutput.RouteTables {
+        if _, err := r.EC2.DeleteRouteTableWithContext(ctx, &ec2.DeleteRouteTableInput{RouteTableId: routeTable.RouteTableId}); err != nil {
+            if err.(awserr.Error).Code() == "DependencyViolation" {
+                log.Printf("Cannot delete route table %s due to dependency violation", aws.StringValue(routeTable.RouteTableId))
+                return reconcile.Result{Requeue: true}, nil
+            }
+            log.Printf("Failed to delete route table %s: %v", aws.StringValue(routeTable.RouteTableId), err)
+            return reconcile.Result{}, fmt.Errorf("deleting route table, %w", err)
+        }
+        log.Printf("Deleted route table %s", aws.StringValue(routeTable.RouteTableId))
+        logging.FromContext(ctx).Infof("Deleted route table %s", aws.StringValue(routeTable.RouteTableId))
+    }
+    return reconcile.Result{}, nil
 }

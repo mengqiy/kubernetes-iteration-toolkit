@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -104,32 +105,39 @@ func (i *Instance) Create(ctx context.Context, substrate *v1alpha1.Substrate) (r
 }
 
 func (i *Instance) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	return reconcile.Result{}, i.delete(ctx, substrate, func(instance *ec2.Instance) bool {
-		return aws.StringValue(instance.State.Name) != ec2.InstanceStateNameShuttingDown &&
-			aws.StringValue(instance.State.Name) != ec2.InstanceStateNameTerminated
-	})
+    log.Printf("Entering Instance.Delete function with substrate %v", substrate)
+    return reconcile.Result{}, i.delete(ctx, substrate, func(instance *ec2.Instance) bool {
+        state := aws.StringValue(instance.State.Name)
+        shouldSkip := state == ec2.InstanceStateNameShuttingDown || state == ec2.InstanceStateNameTerminated
+        log.Printf("Instance %v has state %v; shouldSkip=%v", *instance.InstanceId, state, shouldSkip)
+        return !shouldSkip
+    })
 }
 
 func (i *Instance) delete(ctx context.Context, substrate *v1alpha1.Substrate, predicate func(*ec2.Instance) bool) error {
-	instancesOutput, err := i.EC2.DescribeInstancesWithContext(ctx, &ec2.DescribeInstancesInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return fmt.Errorf("describing instances, %w", err)
-	}
-	instances := []*string{}
-	for _, reservation := range instancesOutput.Reservations {
-		for _, instance := range reservation.Instances {
-			if predicate(instance) {
-				instances = append(instances, instance.InstanceId)
-
-			}
-		}
-	}
-	if len(instances) == 0 {
-		return nil
-	}
-	if _, err := i.EC2.TerminateInstancesWithContext(ctx, &ec2.TerminateInstancesInput{InstanceIds: instances}); err != nil {
-		return fmt.Errorf("terminating instances, %w", err)
-	}
-	logging.FromContext(ctx).Infof("Deleted instances %v", aws.StringValueSlice(instances))
-	return nil
+    log.Printf("Entering Instance.delete function with substrate %v", substrate)
+    instancesOutput, err := i.EC2.DescribeInstancesWithContext(ctx, &ec2.DescribeInstancesInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe instances: %v", err)
+        return fmt.Errorf("describing instances, %w", err)
+    }
+    instances := []*string{}
+    for _, reservation := range instancesOutput.Reservations {
+        for _, instance := range reservation.Instances {
+            if predicate(instance) {
+                instances = append(instances, instance.InstanceId)
+                log.Printf("Adding instance %v to list of instances to delete", *instance.InstanceId)
+            }
+        }
+    }
+    if len(instances) == 0 {
+        log.Printf("No instances found to delete")
+        return nil
+    }
+    if _, err := i.EC2.TerminateInstancesWithContext(ctx, &ec2.TerminateInstancesInput{InstanceIds: instances}); err != nil {
+        log.Printf("Failed to terminate instances: %v", err)
+        return fmt.Errorf("terminating instances, %w", err)
+    }
+    log.Printf("Deleted instances %v", aws.StringValueSlice(instances))
+    return nil
 }

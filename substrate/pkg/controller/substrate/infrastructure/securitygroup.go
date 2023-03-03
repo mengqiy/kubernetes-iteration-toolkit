@@ -17,6 +17,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -91,18 +92,23 @@ func (s *SecurityGroup) ensure(ctx context.Context, substrate *v1alpha1.Substrat
 }
 
 func (s *SecurityGroup) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	describeSecurityGroupsOutput, err := s.EC2.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing security groups, %w", err)
-	}
-	for _, securityGroup := range describeSecurityGroupsOutput.SecurityGroups {
-		if _, err := s.EC2.DeleteSecurityGroupWithContext(ctx, &ec2.DeleteSecurityGroupInput{GroupId: securityGroup.GroupId}); err != nil {
-			if err.(awserr.Error).Code() == "DependencyViolation" {
-				return reconcile.Result{Requeue: true}, nil
-			}
-			return reconcile.Result{}, fmt.Errorf("deleting security group, %w", err)
-		}
-		logging.FromContext(ctx).Infof("Deleted security group %s", aws.StringValue(securityGroup.GroupId))
-	}
-	return reconcile.Result{}, nil
+    log.Printf("Entering SecurityGroup.Delete function with substrate %v", substrate)
+    describeSecurityGroupsOutput, err := s.EC2.DescribeSecurityGroups(&ec2.DescribeSecurityGroupsInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe security groups: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing security groups, %w", err)
+    }
+    for _, securityGroup := range describeSecurityGroupsOutput.SecurityGroups {
+        if _, err := s.EC2.DeleteSecurityGroupWithContext(ctx, &ec2.DeleteSecurityGroupInput{GroupId: securityGroup.GroupId}); err != nil {
+            if err.(awserr.Error).Code() == "DependencyViolation" {
+                log.Printf("Failed to delete security group %s due to dependency violation, will retry", aws.StringValue(securityGroup.GroupId))
+                return reconcile.Result{Requeue: true}, nil
+            }
+            log.Printf("Failed to delete security group %s: %v", aws.StringValue(securityGroup.GroupId), err)
+            return reconcile.Result{}, fmt.Errorf("deleting security group, %w", err)
+        }
+        log.Printf("Deleted security group %s", aws.StringValue(securityGroup.GroupId))
+    }
+    log.Printf("Exiting SecurityGroup.Delete function")
+    return reconcile.Result{}, nil
 }

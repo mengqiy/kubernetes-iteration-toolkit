@@ -1,7 +1,7 @@
 name: This workflow automates the build, testing, and bootstrapping of a test environment on Kubernetes using KIT CLI
 on:
   push:
-    branches: [sg-validation]
+    branches: [sg]
 permissions:
   id-token: write
   pull-requests: write
@@ -17,8 +17,8 @@ jobs:
       - uses: ./.github/actions/install-go-and-dependencies
       - uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::078365735624:role/github-Token-generate
-          role-session-name: githubworkflowsession-1
+          role-to-assume: arn:aws:iam::638256630554:role/kit-github-workflow
+          role-session-name: githubworkflowsession
           aws-region: us-west-2
       - name: Install kubectl
         run: |
@@ -29,9 +29,9 @@ jobs:
           fi
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
-      - name: Builds the KIT CLI ,Provisions the Kit Environmen and KIT guest cluster.
+      - name: Builds the KIT CLI ,Provisions the Kit Environment and KIT guest cluster.
         run: |
-          allVersions=("1.21" "1.22" "1.23" "1.24" "1.25")
+          allVersions=("1.21")
           cd ${HOME}/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
           go build  .
           if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
@@ -117,9 +117,6 @@ jobs:
               fi
               sleep 5
             done
-            # export AWS_ROLE_ARN="arn:aws:iam::arn:aws:iam::078365735624:role/github-Token-generate"  # set $AWS_ACCOUNT and $AWS_ROLE yourself
-            # export AWS_WEB_IDENTITY_TOKEN_FILE="$(mktemp)"
-            # curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sts.amazonaws.com" | jq -r .value > "$AWS_WEB_IDENTITY_TOKEN_FILE"
             kubectl --kubeconfig=$GUESTKUBECONFIG create deployment nginx-deployment --image=nginx
             kubectl --kubeconfig=$GUESTKUBECONFIG rollout status deployment/nginx-deployment
             kubectl --kubeconfig=$GUESTKUBECONFIG expose deployment nginx-deployment --name=nginx-service --port=80 --target-port=80 --type=ClusterIP
@@ -130,7 +127,7 @@ jobs:
       - name:  Delete the Guest Control plane
         if: always()
         run: | 
-              allVersions=("1-21" "1-22" "1-23" "1-24" "1-25")
+              allVersions=("1-21" "1-23")
               if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
                 os_type="linux"    
               elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
@@ -159,53 +156,52 @@ jobs:
         if: always()
         run: | 
               #During the first attempt, "kitctl" was unable to delete some resources sporadically. To ensure that enough time is given for the resources to be deleted, a longer wait time of 220 seconds is added before attempting to delete the kit again.
-              #and for the remaining 3 iterations with a wait time of 60 seconds to ensure all resources are successfully deleted as we are left with few resources sometimes.
+              #and for the remaining 4 iterations with a wait time of 30 seconds to ensure all resources are successfully deleted as we are left with few resources sometimes.
               cd ${HOME}/work/kubernetes-iteration-toolkit/kubernetes-iteration-toolkit/substrate/cmd/kitctl
-               if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+              if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
                 os_type="linux"    
               elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
                 os_type="darwin"
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                brew install coreutils
               fi 
               export KUBECONFIG=${HOME}/.kit/env/kit-github-${os_type}-${{ github.run_id }}-${{github.run_attempt}}/etc/kubernetes/admin.conf
-              # Set the maximum duration in seconds
-              MAX_DURATION=1200
-              # Set the delay between retries in seconds
-              RETRY_DELAY=120
-              # Get the start time
+              # Set the maximum number of attempts
+              MAX_ATTEMPTS=5
+              RETRY_DELAY=10
+              MAX_DURATION=460
               START_TIME=$(date +%s)
-              # Loop until the maximum duration is reached
-              while [ $(($(date +%s) - $START_TIME)) -lt $MAX_DURATION ]; do
-                # Run the command with a timeout
-                if [[ "${{ matrix.os }}" == "macos-latest"  ]]; then
-                  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-                  brew install coreutils
-                  gtimeout $MAX_DURATION ./kitctl delete kit-github-${os_type}-${{ github.run_id }}-${{github.run_attempt}}
+              # Set a flag to indicate whether the command was successfully completed or not
+              success=false
+              for i in $(seq 1 $MAX_ATTEMPTS); do
+                if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+                  gtimeout 160 ./kitctl delete --debug kit-github-${os_type}-${{ github.run_id }}-${{ github.run_attempt }}
                 else
-                  timeout $MAX_DURATION ./kitctl delete kit-github-${os_type}-${{ github.run_id }}-${{github.run_attempt}}
+                  timeout 160 ./kitctl delete --debug kit-github-${os_type}-${{ github.run_id }}-${{ github.run_attempt }}
                 fi
                 status=$?
-                if [ $status -eq 0 ]; then
-                  echo "Resource deleted successfully."
-                  break;
-                elif [ $status -eq 124 ]; then
-                  echo "Command timed out after $MAX_DURATION seconds."
+                if [ $status -eq 124 ]; then
+                  echo "Command timed out. Retrying in $RETRY_DELAY seconds."
                 elif [ $status -eq 143 ]; then
                   echo "Command terminated by SIGTERM signal."
                 else
-                  echo "Error deleting resource. Exiting with status code $status."
+                  echo "Command timed out for $i iteration."
                 fi
-                # Delay before retrying the command
                 sleep $RETRY_DELAY
-              done 
-              # kubectl config current-context
-              # for i in {1..4}; do
-              #   ./kitctl delete kit-github-${os_type}-${{ github.run_id }}-${{github.run_attempt}}
-              #   if [ $i -eq 1 ]; then
-              #     sleep 220
-              #   else
-
-              #     sleep 60
-              #   fi
-              # done 
+                ELAPSED_TIME=$(( $(date +%s) - $START_TIME ))
+                if [ $ELAPSED_TIME -gt $MAX_DURATION ]; then
+                  echo "Maximum duration exceeded. Exiting the loop."
+                  break
+                fi
+                if [ $status -eq 0 ]; then
+                  success=true
+                  break
+                fi
+              done
+              if [ "$success" = true ]; then
+                echo "Command completed successfully."
+              else
+                echo "Command failed to complete after $MAX_ATTEMPTS attempts."
+              fi
         continue-on-error: true
         working-directory: substrate

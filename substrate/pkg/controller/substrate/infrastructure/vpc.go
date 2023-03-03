@@ -17,6 +17,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -68,18 +69,23 @@ func (v *VPC) Create(ctx context.Context, substrate *v1alpha1.Substrate) (reconc
 }
 
 func (v *VPC) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	describeVpcsOutput, err := v.EC2.DescribeVpcsWithContext(ctx, &ec2.DescribeVpcsInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing vpc, %w", err)
-	}
-	for _, vpc := range describeVpcsOutput.Vpcs {
-		if _, err := v.EC2.DeleteVpcWithContext(ctx, &ec2.DeleteVpcInput{VpcId: vpc.VpcId}); err != nil {
-			if err.(awserr.Error).Code() == "DependencyViolation" {
-				return reconcile.Result{Requeue: true}, nil
-			}
-			return reconcile.Result{}, fmt.Errorf("deleting vpc, %w", err)
-		}
-		logging.FromContext(ctx).Infof("Deleted vpc %s", aws.StringValue(vpc.VpcId))
-	}
-	return reconcile.Result{}, nil
+    log.Printf("Entering VPC.Delete function with substrate %v", substrate)
+    describeVpcsOutput, err := v.EC2.DescribeVpcsWithContext(ctx, &ec2.DescribeVpcsInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe VPCs: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing vpc, %w", err)
+    }
+    for _, vpc := range describeVpcsOutput.Vpcs {
+        if _, err := v.EC2.DeleteVpcWithContext(ctx, &ec2.DeleteVpcInput{VpcId: vpc.VpcId}); err != nil {
+            if err.(awserr.Error).Code() == "DependencyViolation" {
+                log.Printf("Failed to delete VPC %s due to dependency violation, will retry", aws.StringValue(vpc.VpcId))
+                return reconcile.Result{Requeue: true}, nil
+            }
+            log.Printf("Failed to delete VPC %s: %v", aws.StringValue(vpc.VpcId), err)
+            return reconcile.Result{}, fmt.Errorf("deleting vpc, %w", err)
+        }
+        log.Printf("Deleted VPC %s", aws.StringValue(vpc.VpcId))
+    }
+    log.Printf("Exiting VPC.Delete function")
+    return reconcile.Result{}, nil
 }

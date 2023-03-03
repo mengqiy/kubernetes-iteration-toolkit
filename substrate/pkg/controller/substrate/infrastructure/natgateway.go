@@ -17,6 +17,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -113,18 +114,22 @@ func (n *NatGateway) ensure(ctx context.Context, substrate *v1alpha1.Substrate) 
 }
 
 func (n *NatGateway) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	natGW, err := n.getNatGateway(ctx, substrate)
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("getting existing NAT GW, %w", err)
-	}
-	if natGW == nil || *natGW.NatGatewayId == "" {
-		return reconcile.Result{}, nil
-	}
-	if _, err := n.EC2.DeleteNatGatewayWithContext(ctx, &ec2.DeleteNatGatewayInput{
-		NatGatewayId: aws.String(*natGW.NatGatewayId),
-	}); err != nil {
-		return reconcile.Result{}, fmt.Errorf("deleting NAT GW, %w", err)
-	}
-	logging.FromContext(ctx).Infof("Deleted NAT gateway %s", substrate.Name)
-	return reconcile.Result{}, nil
+    log.Printf("Entering NatGateway.Delete function with substrate %v", substrate)
+    natGW, err := n.getNatGateway(ctx, substrate)
+    if err != nil {
+        log.Printf("Failed to get existing NAT gateway: %v", err)
+        return reconcile.Result{}, fmt.Errorf("getting existing NAT gateway, %w", err)
+    }
+    if natGW == nil || *natGW.NatGatewayId == "" {
+        log.Printf("No NAT gateway found for substrate %v", substrate)
+        return reconcile.Result{}, nil
+    }
+    if _, err := n.EC2.DeleteNatGatewayWithContext(ctx, &ec2.DeleteNatGatewayInput{
+        NatGatewayId: aws.String(*natGW.NatGatewayId),
+    }); err != nil {
+        log.Printf("Failed to delete NAT gateway %s: %v", substrate.Name, err)
+        return reconcile.Result{}, fmt.Errorf("deleting NAT gateway, %w", err)
+    }
+    log.Printf("Deleted NAT gateway %s", substrate.Name)
+    return reconcile.Result{}, nil
 }

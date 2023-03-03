@@ -17,6 +17,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -83,37 +84,46 @@ func (i *InternetGateway) ensure(ctx context.Context, substrate *v1alpha1.Substr
 }
 
 func (i *InternetGateway) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	describeVpcsOutput, err := i.EC2.DescribeVpcsWithContext(ctx, &ec2.DescribeVpcsInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing vpc, %w", err)
-	}
-	if len(describeVpcsOutput.Vpcs) == 0 {
-		return reconcile.Result{}, nil
-	}
-	describeInternetGatewaysOutput, err := i.EC2.DescribeInternetGatewaysWithContext(ctx, &ec2.DescribeInternetGatewaysInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing internet gateways, %w", err)
-	}
-	if len(describeInternetGatewaysOutput.InternetGateways) == 0 {
-		return reconcile.Result{}, nil
-	}
-	if _, err := i.EC2.DetachInternetGatewayWithContext(ctx, &ec2.DetachInternetGatewayInput{
-		VpcId: describeVpcsOutput.Vpcs[0].VpcId, InternetGatewayId: describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId,
-	}); err != nil {
-		if err.(awserr.Error).Code() == "DependencyViolation" {
-			return reconcile.Result{Requeue: true}, nil
-		}
-		if err.(awserr.Error).Code() != "Gateway.NotAttached" {
-			return reconcile.Result{}, fmt.Errorf("detaching internet gateway, %w", err)
-		}
-	} else {
-		logging.FromContext(ctx).Infof("Deleted internet gateway %s attachment to %s", aws.StringValue(describeVpcsOutput.Vpcs[0].VpcId), aws.StringValue(describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId))
-	}
-	if _, err := i.EC2.DeleteInternetGatewayWithContext(ctx, &ec2.DeleteInternetGatewayInput{
-		InternetGatewayId: describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId,
-	}); err != nil {
-		return reconcile.Result{}, fmt.Errorf("deleting internet gateway, %w", err)
-	}
+    log.Printf("Entering InternetGateway.Delete function with substrate %v", substrate)
+    describeVpcsOutput, err := i.EC2.DescribeVpcsWithContext(ctx, &ec2.DescribeVpcsInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe VPCs: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing VPCs, %w", err)
+    }
+    if len(describeVpcsOutput.Vpcs) == 0 {
+        log.Printf("No VPCs found matching substrate %v", substrate)
+        return reconcile.Result{}, nil
+    }
+    describeInternetGatewaysOutput, err := i.EC2.DescribeInternetGatewaysWithContext(ctx, &ec2.DescribeInternetGatewaysInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe internet gateways: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing internet gateways, %w", err)
+    }
+    if len(describeInternetGatewaysOutput.InternetGateways) == 0 {
+        log.Printf("No internet gateways found matching substrate %v", substrate)
+        return reconcile.Result{}, nil
+    }
+    if _, err := i.EC2.DetachInternetGatewayWithContext(ctx, &ec2.DetachInternetGatewayInput{
+        VpcId: describeVpcsOutput.Vpcs[0].VpcId, InternetGatewayId: describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId,
+    }); err != nil {
+        if err.(awserr.Error).Code() == "DependencyViolation" {
+            log.Printf("Failed to detach internet gateway %s from VPC %s due to dependency violation, will retry", aws.StringValue(describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId), aws.StringValue(describeVpcsOutput.Vpcs[0].VpcId))
+            return reconcile.Result{Requeue: true}, nil
+        }
+        if err.(awserr.Error).Code() != "Gateway.NotAttached" {
+            log.Printf("Failed to detach internet gateway %s from VPC %s: %v", aws.StringValue(describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId), aws.StringValue(describeVpcsOutput.Vpcs[0].VpcId), err)
+            return reconcile.Result{}, fmt.Errorf("detaching internet gateway, %w", err)
+        }
+    } else {
+        log.Printf("Detached internet gateway %s from VPC %s", aws.StringValue(describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId), aws.StringValue(describeVpcsOutput.Vpcs[0].VpcId))
+    }
+    if _, err := i.EC2.DeleteInternetGatewayWithContext(ctx, &ec2.DeleteInternetGatewayInput{
+        InternetGatewayId: describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId,
+    }); err != nil {
+        log.Printf("Failed to delete internet gateway %s: %v", aws.StringValue(describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId), err)
+        return reconcile.Result{}, fmt.Errorf("deleting internet gateway, %w", err)
+    }
+    log.Printf("Deleted internet gateway %s", aws.StringValue(describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId))
 	logging.FromContext(ctx).Infof("Deleted internet gateway %s", aws.StringValue(describeInternetGatewaysOutput.InternetGateways[0].InternetGatewayId))
 	return reconcile.Result{}, nil
 }

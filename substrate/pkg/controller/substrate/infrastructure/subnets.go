@@ -17,6 +17,7 @@ package infrastructure
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -111,32 +112,39 @@ func (s *Subnets) ensureSubnet(ctx context.Context, substrate *v1alpha1.Substrat
 }
 
 func (s *Subnets) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	routeTablesOutput, err := s.EC2.DescribeRouteTablesWithContext(ctx, &ec2.DescribeRouteTablesInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing subnets, %w", err)
-	}
-	for _, routeTable := range routeTablesOutput.RouteTables {
-		for _, association := range routeTable.Associations {
-			if _, err := s.EC2.DisassociateRouteTableWithContext(ctx, &ec2.DisassociateRouteTableInput{AssociationId: association.RouteTableAssociationId}); err != nil {
-				return reconcile.Result{}, fmt.Errorf("disassociating route table from subnet, %s", err)
-			}
-			logging.FromContext(ctx).Debugf("Deleted association of route table %s to subnet %s", aws.StringValue(routeTable.RouteTableId), aws.StringValue(association.SubnetId))
-		}
-	}
-	subnetsOutput, err := s.EC2.DescribeSubnetsWithContext(ctx, &ec2.DescribeSubnetsInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing subnets, %w", err)
-	}
-	for _, subnet := range subnetsOutput.Subnets {
-		if _, err := s.EC2.DeleteSubnetWithContext(ctx, &ec2.DeleteSubnetInput{SubnetId: subnet.SubnetId}); err != nil {
-			if err.(awserr.Error).Code() == "DependencyViolation" {
-				return reconcile.Result{Requeue: true}, nil
-			}
-			return reconcile.Result{}, fmt.Errorf("deleting subnet, %w", err)
-		}
-		logging.FromContext(ctx).Infof("Deleted subnet %s", aws.StringValue(subnetsOutput.Subnets[0].SubnetId))
-	}
-	return reconcile.Result{}, nil
+    log.Printf("Entering Subnets.Delete function with substrate %v", substrate)
+    routeTablesOutput, err := s.EC2.DescribeRouteTablesWithContext(ctx, &ec2.DescribeRouteTablesInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe route tables: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing subnets, %w", err)
+    }
+    for _, routeTable := range routeTablesOutput.RouteTables {
+        for _, association := range routeTable.Associations {
+            if _, err := s.EC2.DisassociateRouteTableWithContext(ctx, &ec2.DisassociateRouteTableInput{AssociationId: association.RouteTableAssociationId}); err != nil {
+                log.Printf("Failed to disassociate route table %s from subnet %s: %v", aws.StringValue(routeTable.RouteTableId), aws.StringValue(association.SubnetId), err)
+                return reconcile.Result{}, fmt.Errorf("disassociating route table from subnet, %s", err)
+            }
+            log.Printf("Deleted association of route table %s to subnet %s", aws.StringValue(routeTable.RouteTableId), aws.StringValue(association.SubnetId))
+        }
+    }
+    subnetsOutput, err := s.EC2.DescribeSubnetsWithContext(ctx, &ec2.DescribeSubnetsInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe subnets: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing subnets, %w", err)
+    }
+    for _, subnet := range subnetsOutput.Subnets {
+        if _, err := s.EC2.DeleteSubnetWithContext(ctx, &ec2.DeleteSubnetInput{SubnetId: subnet.SubnetId}); err != nil {
+            if err.(awserr.Error).Code() == "DependencyViolation" {
+                log.Printf("Failed to delete subnet %s due to dependency violation, will retry", aws.StringValue(subnet.SubnetId))
+                return reconcile.Result{Requeue: true}, nil
+            }
+            log.Printf("Failed to delete subnet %s: %v", aws.StringValue(subnet.SubnetId), err)
+            return reconcile.Result{}, fmt.Errorf("deleting subnet, %w", err)
+        }
+        log.Printf("Deleted subnet %s", aws.StringValue(subnet.SubnetId))
+    }
+    log.Printf("Exiting Subnets.Delete function")
+    return reconcile.Result{}, nil
 }
 
 func subnetName(substrate *v1alpha1.Substrate, zone string, public bool) *string {

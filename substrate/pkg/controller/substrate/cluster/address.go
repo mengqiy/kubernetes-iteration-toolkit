@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -82,25 +83,36 @@ func (a *Address) ensure(ctx context.Context, tagValue *string, substrate *v1alp
 }
 
 func (a *Address) Delete(ctx context.Context, substrate *v1alpha1.Substrate) (reconcile.Result, error) {
-	addressesOutput, err := a.EC2.DescribeAddressesWithContext(ctx, &ec2.DescribeAddressesInput{Filters: discovery.Filters(substrate)})
-	if err != nil {
-		return reconcile.Result{}, fmt.Errorf("describing addresses, %w", err)
-	}
-	for _, address := range addressesOutput.Addresses {
-		if address.AssociationId != nil {
-			if _, err := a.EC2.DisassociateAddressWithContext(ctx, &ec2.DisassociateAddressInput{AssociationId: address.AssociationId}); err != nil {
-				// Until NAT GW is not yet deleted we can't disassociate, check for error and retry
-				if err != nil && strings.Contains(err.Error(), "AuthFailure: You do not have permission to access the specified resource") {
-					if aerr := awserr.Error(nil); errors.As(err, &aerr) {
-						return reconcile.Result{Requeue: true}, nil
-					}
-				}
-				return reconcile.Result{}, fmt.Errorf("disassociating elastic IP, %w", err)
-			}
-		}
-		if _, err := a.EC2.ReleaseAddressWithContext(ctx, &ec2.ReleaseAddressInput{AllocationId: address.AllocationId}); err != nil {
-			return reconcile.Result{}, fmt.Errorf("releasing elastic IP, %w", err)
-		}
-	}
-	return reconcile.Result{}, nil
+    log.Printf("Entering Address.Delete function with substrate %v", substrate)
+    addressesOutput, err := a.EC2.DescribeAddressesWithContext(ctx, &ec2.DescribeAddressesInput{Filters: discovery.Filters(substrate)})
+    if err != nil {
+        log.Printf("Failed to describe addresses: %v", err)
+        return reconcile.Result{}, fmt.Errorf("describing addresses, %w", err)
+    }
+    log.Printf("Found %d addresses to delete", len(addressesOutput.Addresses))
+    for _, address := range addressesOutput.Addresses {
+        if address.AssociationId != nil {
+            log.Printf("Disassociating elastic IP with association ID %v", *address.AssociationId)
+            if _, err := a.EC2.DisassociateAddressWithContext(ctx, &ec2.DisassociateAddressInput{AssociationId: address.AssociationId}); err != nil {
+                // Until NAT GW is not yet deleted we can't disassociate, check for error and retry
+                if err != nil && strings.Contains(err.Error(), "AuthFailure: You do not have permission to access the specified resource") {
+                    if aerr := awserr.Error(nil); errors.As(err, &aerr) {
+                        log.Printf("Retry disassociating elastic IP due to error: %v", err)
+                        return reconcile.Result{Requeue: true}, nil
+                    }
+                }
+                log.Printf("Failed to disassociate elastic IP: %v", err)
+                return reconcile.Result{}, fmt.Errorf("disassociating elastic IP, %w", err)
+            }
+            log.Printf("Successfully disassociated elastic IP with association ID %v", *address.AssociationId)
+        }
+        log.Printf("Releasing elastic IP with allocation ID %v", *address.AllocationId)
+        if _, err := a.EC2.ReleaseAddressWithContext(ctx, &ec2.ReleaseAddressInput{AllocationId: address.AllocationId}); err != nil {
+            log.Printf("Failed to release elastic IP: %v", err)
+            return reconcile.Result{}, fmt.Errorf("releasing elastic IP, %w", err)
+        }
+        log.Printf("Successfully released elastic IP with allocation ID %v", *address.AllocationId)
+    }
+    log.Printf("Exiting Address.Delete function")
+    return reconcile.Result{}, nil
 }

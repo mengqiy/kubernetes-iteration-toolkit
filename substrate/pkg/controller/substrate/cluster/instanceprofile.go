@@ -17,6 +17,7 @@ package cluster
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -117,51 +118,53 @@ func (i *InstanceProfile) Delete(ctx context.Context, substrate *v1alpha1.Substr
 }
 
 func (i *InstanceProfile) DeleteInstanceProfile(ctx context.Context, resourceName, policy *string, managedPolicies []string) (reconcile.Result, error) {
-	// Policy
-	if policy != nil {
-		if _, err := i.IAM.DeleteRolePolicyWithContext(ctx, &iam.DeleteRolePolicyInput{RoleName: resourceName, PolicyName: resourceName}); err != nil {
-			if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
-				return reconcile.Result{}, fmt.Errorf("removing policy from role, %w", err)
-			}
-		} else {
-			logging.FromContext(ctx).Infof("Deleted policy %s from role %s", aws.StringValue(resourceName), aws.StringValue(resourceName))
-		}
-	}
-	// Managed Policies
-	for _, policy := range managedPolicies {
-		if _, err := i.IAM.DetachRolePolicyWithContext(ctx, &iam.DetachRolePolicyInput{RoleName: resourceName, PolicyArn: aws.String(policy)}); err != nil {
-			if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
-				return reconcile.Result{}, fmt.Errorf("detatching policy from role, %w", err)
-			}
-		} else {
-			logging.FromContext(ctx).Infof("Deleted policy %s from role %s", aws.StringValue(resourceName), aws.StringValue(resourceName))
-		}
-	}
-	// Binding
-	if _, err := i.IAM.RemoveRoleFromInstanceProfileWithContext(ctx, &iam.RemoveRoleFromInstanceProfileInput{RoleName: resourceName, InstanceProfileName: resourceName}); err != nil {
-		if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
-			return reconcile.Result{}, fmt.Errorf("removing instance profile from role %w,", err)
-		}
-	} else {
-		logging.FromContext(ctx).Infof("Deleted role %s from instance profile %s", aws.StringValue(resourceName), aws.StringValue(resourceName))
-	}
-	// Profile
-	if _, err := i.IAM.DeleteInstanceProfileWithContext(ctx, &iam.DeleteInstanceProfileInput{InstanceProfileName: resourceName}); err != nil {
-		if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
-			return reconcile.Result{}, fmt.Errorf("deleting instance profile %w,", err)
-		}
-	} else {
-		logging.FromContext(ctx).Infof("Deleted instance profile %s", aws.StringValue(resourceName))
-	}
-	// Role
-	if _, err := i.IAM.DeleteRoleWithContext(ctx, &iam.DeleteRoleInput{RoleName: resourceName}); err != nil {
-		if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
-			return reconcile.Result{}, fmt.Errorf("deleting role, %w", err)
-		}
-	} else {
-		logging.FromContext(ctx).Infof("Deleted role %s", aws.StringValue(resourceName))
-	}
-	return reconcile.Result{}, nil
+    log.Printf("Starting DeleteInstanceProfile function for resource %s", aws.StringValue(resourceName))
+    // Policy
+    if policy != nil {
+        if _, err := i.IAM.DeleteRolePolicyWithContext(ctx, &iam.DeleteRolePolicyInput{RoleName: resourceName, PolicyName: resourceName}); err != nil {
+            if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
+                return reconcile.Result{}, fmt.Errorf("removing policy from role, %w", err)
+            }
+        } else {
+            log.Printf("Deleted policy %s from role %s", aws.StringValue(resourceName), aws.StringValue(resourceName))
+        }
+    }
+    // Managed Policies
+    for _, policy := range managedPolicies {
+        if _, err := i.IAM.DetachRolePolicyWithContext(ctx, &iam.DetachRolePolicyInput{RoleName: resourceName, PolicyArn: aws.String(policy)}); err != nil {
+            if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
+                return reconcile.Result{}, fmt.Errorf("detaching policy from role, %w", err)
+            }
+        } else {
+            log.Printf("Detached policy %s from role %s", policy, aws.StringValue(resourceName))
+        }
+    }
+    // Binding
+    if _, err := i.IAM.RemoveRoleFromInstanceProfileWithContext(ctx, &iam.RemoveRoleFromInstanceProfileInput{RoleName: resourceName, InstanceProfileName: resourceName}); err != nil {
+        if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
+            return reconcile.Result{}, fmt.Errorf("removing instance profile from role, %w,", err)
+        }
+    } else {
+        log.Printf("Removed role %s from instance profile %s", aws.StringValue(resourceName), aws.StringValue(resourceName))
+    }
+    // Profile
+    if _, err := i.IAM.DeleteInstanceProfileWithContext(ctx, &iam.DeleteInstanceProfileInput{InstanceProfileName: resourceName}); err != nil {
+        if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
+            return reconcile.Result{}, fmt.Errorf("deleting instance profile, %w,", err)
+        }
+    } else {
+        log.Printf("Deleted instance profile %s", aws.StringValue(resourceName))
+    }
+    // Role
+    if _, err := i.IAM.DeleteRoleWithContext(ctx, &iam.DeleteRoleInput{RoleName: resourceName}); err != nil {
+        if err.(awserr.Error).Code() != iam.ErrCodeNoSuchEntityException {
+            return reconcile.Result{}, fmt.Errorf("deleting role, %w", err)
+        }
+    } else {
+        log.Printf("Deleted role %s", aws.StringValue(resourceName))
+    }
+    log.Printf("Finished DeleteInstanceProfile function for resource %s", aws.StringValue(resourceName))
+    return reconcile.Result{}, nil
 }
 
 func desiredRolesFor(substrate *v1alpha1.Substrate) []role {
