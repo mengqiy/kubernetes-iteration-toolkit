@@ -4,323 +4,323 @@
 "Parameters": {
 "VpcBlock1": {
 "Type": "String",
-"Default": "10.0.0.0/16",
+"Default": "10.0.0.0/12",
 "Description": "The primary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock2": {
 "Type": "String",
-"Default": "10.1.0.0/16",
+"Default": "10.1.0.0/12",
 "Description": "The secondary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock3": {
 "Type": "String",
-"Default": "10.2.0.0/16",
+"Default": "10.2.0.0/12",
 "Description": "The secondary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock4": {
 "Type": "String",
-"Default": "10.3.0.0/16",
+"Default": "10.3.0.0/12",
 "Description": "The secondary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock5": {
 "Type": "String",
-"Default": "10.4.0.0/16",
+"Default": "10.4.0.0/12",
 "Description": "The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock6": {
 "Type": "String",
-"Default": "10.5.0.0/16",
+"Default": "10.5.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock7": {
 "Type": "String",
-"Default": "10.6.0.0/16",
+"Default": "10.6.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock8": {
 "Type": "String",
-"Default": "10.7.0.0/16",
+"Default": "10.7.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock9": {
 "Type": "String",
-"Default": "10.8.0.0/16",
+"Default": "10.8.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock10": {
 "Type": "String",
-"Default": "10.9.0.0/16",
+"Default": "10.9.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock11": {
 "Type": "String",
-"Default": "10.10.0.0/16",
+"Default": "10.10.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock12": {
 "Type": "String",
-"Default": "10.11.0.0/16",
+"Default": "10.11.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock13": {
 "Type": "String",
-"Default": "10.12.0.0/16",
+"Default": "10.12.0.0/12",
 "Description": "The secondary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock14": {
 "Type": "String",
-"Default": "10.13.0.0/16",
+"Default": "10.13.0.0/12",
 "Description": "The secondary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock15": {
 "Type": "String",
-"Default": "10.14.0.0/16",
+"Default": "10.14.0.0/12",
 "Description": "The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock16": {
 "Type": "String",
-"Default": "10.15.0.0/16",
+"Default": "10.15.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock17": {
 "Type": "String",
-"Default": "10.16.0.0/16",
+"Default": "10.16.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock18": {
 "Type": "String",
-"Default": "10.17.0.0/16",
+"Default": "10.17.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock19": {
 "Type": "String",
-"Default": "10.18.0.0/16",
+"Default": "10.18.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock20": {
 "Type": "String",
-"Default": "10.19.0.0/16",
+"Default": "10.19.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock21": {
 "Type": "String",
-"Default": "10.20.0.0/16",
+"Default": "10.20.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock22": {
 "Type": "String",
-"Default": "10.21.0.0/16",
+"Default": "10.21.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock23": {
 "Type": "String",
-"Default": "10.22.0.0/16",
+"Default": "10.22.0.0/12",
 "Description": "The secondary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock24": {
 "Type": "String",
-"Default": "10.23.0.0/16",
+"Default": "10.23.0.0/12",
 "Description": "The secondary CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock25": {
 "Type": "String",
-"Default": "10.24.0.0/16",
+"Default": "10.24.0.0/12",
 "Description": "The CIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock26": {
 "Type": "String",
-"Default": "10.25.0.0/16",
+"Default": "10.25.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock27": {
 "Type": "String",
-"Default": "10.26.0.0/16",
+"Default": "10.26.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock28": {
 "Type": "String",
-"Default": "10.27.0.0/16",
+"Default": "10.27.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock29": {
 "Type": "String",
-"Default": "10.28.0.0/16",
+"Default": "10.28.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock30": {
 "Type": "String",
-"Default": "10.29.0.0/16",
+"Default": "10.29.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock31": {
 "Type": "String",
-"Default": "10.30.0.0/16",
+"Default": "10.30.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 "VpcBlock32": {
 "Type": "String",
-"Default": "10.31.0.0/16",
+"Default": "10.31.0.0/12",
 "Description": "TheCIDR range for the VPC. This should be a valid private (RFC 1918) CIDR range."
 },
 
 "PublicSubnet01Block": {
 "Type": "String",
-"Default": "10.0.0.0/16",
+"Default": "10.0.0.0/12",
 "Description": "CidrBlock for public subnet 01 within the VPC"
 },
 "PublicSubnet02Block": {
 "Type": "String",
-"Default": "10.1.0.0/16",
+"Default": "10.1.0.0/12",
 "Description": "CidrBlock for public subnet 02 within the VPC"
 },
 "PublicSubnet03Block": {
 "Type": "String",
-"Default": "10.2.0.0/16",
+"Default": "10.2.0.0/12",
 "Description": "CidrBlock for public subnet 03 within the VPC"
 },
 "PublicSubnet04Block": {
 "Type": "String",
-"Default": "10.3.0.0/16",
+"Default": "10.3.0.0/12",
 "Description": "CidrBlock for public subnet 04 within the VPC"
 },
 "PrivateSubnet01Block": {
 "Type": "String",
-"Default": "10.4.0.0/16",
+"Default": "10.4.0.0/12",
 "Description": "CidrBlock for private subnet 01 within the VPC"
 },
 "PrivateSubnet02Block": {
 "Type": "String",
-"Default": "10.5.0.0/16",
+"Default": "10.5.0.0/12",
 "Description": "CidrBlock for private subnet 02 within the VPC"
 },
 "PrivateSubnet03Block": {
 "Type": "String",
-"Default": "10.6.0.0/16",
+"Default": "10.6.0.0/12",
 "Description": "CidrBlock for private subnet 03 within the VPC"
 },
 "PrivateSubnet04Block": {
 "Type": "String",
-"Default": "10.7.0.0/16",
+"Default": "10.7.0.0/12",
 "Description": "CidrBlock for private subnet 04 within the VPC"
 },
 "PrivateSubnet05Block": {
 "Type": "String",
-"Default": "10.8.0.0/16",
+"Default": "10.8.0.0/12",
 "Description": "CidrBlock for private subnet 05 within the VPC"
 },
 "PrivateSubnet06Block": {
 "Type": "String",
-"Default": "10.9.0.0/16",
+"Default": "10.9.0.0/12",
 "Description": "CidrBlock for private subnet 06 within the VPC"
 },
 "PrivateSubnet07Block": {
 "Type": "String",
-"Default": "10.10.0.0/16",
+"Default": "10.10.0.0/12",
 "Description": "CidrBlock for private subnet 07 within the VPC"
 },
 "PrivateSubnet08Block": {
 "Type": "String",
-"Default": "10.11.0.0/16",
+"Default": "10.11.0.0/12",
 "Description": "CidrBlock for private subnet 08 within the VPC"
 },
 "PrivateSubnet09Block": {
 "Type": "String",
-"Default": "10.12.0.0/16",
+"Default": "10.12.0.0/12",
 "Description": "CidrBlock for private subnet 09 within the VPC"
 },
 "PrivateSubnet10Block": {
 "Type": "String",
-"Default": "10.13.0.0/16",
+"Default": "10.13.0.0/12",
 "Description": "CidrBlock for private subnet 10 within the VPC"
 },
 "PrivateSubnet11Block": {
 "Type": "String",
-"Default": "10.14.0.0/16",
+"Default": "10.14.0.0/12",
 "Description": "CidrBlock for private subnet 11 within the VPC"
 },
 "PrivateSubnet12Block": {
 "Type": "String",
-"Default": "10.15.0.0/16",
+"Default": "10.15.0.0/12",
 "Description": "CidrBlock for private subnet 12 within the VPC"
 },
 "PrivateSubnet13Block": {
 "Type": "String",
-"Default": "10.16.0.0/16",
+"Default": "10.16.0.0/12",
 "Description": "CidrBlock for private subnet 13 within the VPC"
 },
 "PrivateSubnet14Block": {
 "Type": "String",
-"Default": "10.17.0.0/16",
+"Default": "10.17.0.0/12",
 "Description": "CidrBlock for private subnet 14 within the VPC"
 },
 "PrivateSubnet15Block": {
 "Type": "String",
-"Default": "10.18.0.0/16",
+"Default": "10.18.0.0/12",
 "Description": "CidrBlock for private subnet 15 within the VPC"
 },
 "PrivateSubnet16Block": {
 "Type": "String",
-"Default": "10.19.0.0/16",
+"Default": "10.19.0.0/12",
 "Description": "CidrBlock for private subnet 16 within the VPC"
 },
 "PrivateSubnet17Block": {
 "Type": "String",
-"Default": "10.20.0.0/16",
+"Default": "10.20.0.0/12",
 "Description": "CidrBlock for private subnet 17 within the VPC"
 },
 "PrivateSubnet18Block": {
 "Type": "String",
-"Default": "10.21.0.0/16",
+"Default": "10.21.0.0/12",
 "Description": "CidrBlock for private subnet 18 within the VPC"
 },
 "PrivateSubnet19Block": {
 "Type": "String",
-"Default": "10.22.0.0/16",
+"Default": "10.22.0.0/12",
 "Description": "CidrBlock for private subnet 19 within the VPC"
 },
 "PrivateSubnet20Block": {
 "Type": "String",
-"Default": "10.23.0.0/16",
+"Default": "10.23.0.0/12",
 "Description": "CidrBlock for private subnet 20 within the VPC"
 },
 "PrivateSubnet21Block": {
 "Type": "String",
-"Default": "10.24.0.0/16",
+"Default": "10.24.0.0/12",
 "Description": "CidrBlock for private subnet 21 within the VPC"
 },
 "PrivateSubnet22Block": {
 "Type": "String",
-"Default": "10.25.0.0/16",
+"Default": "10.25.0.0/12",
 "Description": "CidrBlock for private subnet 22 within the VPC"
 },
 "PrivateSubnet23Block": {
 "Type": "String",
-"Default": "10.26.0.0/16",
+"Default": "10.26.0.0/12",
 "Description": "CidrBlock for private subnet 23 within the VPC"
 },
 "PrivateSubnet24Block": {
 "Type": "String",
-"Default": "10.27.0.0/16",
+"Default": "10.27.0.0/12",
 "Description": "CidrBlock for private subnet 24 within the VPC"
 },
 "PrivateSubnet25Block": {
 "Type": "String",
-"Default": "10.28.0.0/16",
+"Default": "10.28.0.0/12",
 "Description": "CidrBlock for private subnet 25 within the VPC"
 },
 "PrivateSubnet26Block": {
 "Type": "String",
-"Default": "10.29.0.0/16",
+"Default": "10.29.0.0/12",
 "Description": "CidrBlock for private subnet 26 within the VPC"
 },
 "PrivateSubnet27Block": {
 "Type": "String",
-"Default": "10.30.0.0/16",
+"Default": "10.30.0.0/12",
 "Description": "CidrBlock for private subnet 27 within the VPC"
 },
 "PrivateSubnet28Block": {
 "Type": "String",
-"Default": "10.31.0.0/16",
+"Default": "10.31.0.0/12",
 "Description": "CidrBlock for private subnet 28 within the VPC"
 }
 },
