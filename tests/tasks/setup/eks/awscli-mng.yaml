@@ -69,7 +69,6 @@ spec:
       asgs=$((nodes/max_nodes))
       echo "asgs: $asgs"
       node_group=$(params.nodegroup-prefix)$(params.cluster-name)-nodes
-    
       create_and_validate_dp_nodes()
       {
         node_group_name=$node_group-$1

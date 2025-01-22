@@ -41,7 +41,17 @@ spec:
         fi
         
         curl -s $(params.ng-cfn-url) -o ./amazon-ng-cfn
-        
+
+        SSH_KEY_NAME=scaletest-nodegroups-ssh-key
+        if [[ "$(aws ec2 --region "$(params.region)" describe-key-pairs --key-names "$SSH_KEY_NAME" --query 'KeyPairs[0].KeyName' --output text)" == "$SSH_KEY_NAME" ]]; then
+            echo "KeyPair '$SSH_KEY_NAME' already exists."
+        else
+            echo "KeyPair not found. Creating a new keypair."
+            # Given these are temp nodes, outputting key for devs to copy it to use for debugging
+            #ToDo - store it in s3 for devs to download it.
+            aws ec2 create-key-pair --region $(params.region) --key-name $SSH_KEY_NAME --query 'KeyMaterial' --output text
+        fi
+
         launch_template_name=$(params.cluster-name)-launchTemplate
         STACK_NAME=$(params.stack-name)
         STACK_STATUS=$(aws cloudformation describe-stacks --query 'Stacks[?StackName==`'${STACK_NAME}'`].StackStatus' --output text  --region $(params.region))
@@ -52,6 +62,7 @@ spec:
                 --template-body file://$(pwd)/amazon-ng-cfn \
                 --parameters ParameterKey=LaunchTemplateName,ParameterValue=$launch_template_name\
                     ParameterKey=ClusterName,ParameterValue=$(params.cluster-name)\
+                    ParameterKey=SSHKeyName,ParameterValue=$SSH_KEY_NAME\
                 --region $(params.region)
         
             aws cloudformation wait stack-create-complete --stack-name $STACK_NAME --region $(params.region)
