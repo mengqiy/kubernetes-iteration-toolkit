@@ -41,7 +41,7 @@ spec:
     default: "https://raw.githubusercontent.com/awslabs/kubernetes-iteration-toolkit/main/tests/assets/eks-networking/test-svc.yaml"
   results:
     - name: datapoint
-      description: Stores the CL2 result that can be consumed by other tasks (e.g. cloudwatch) 
+      description: Stores the CL2 result that can be consumed by other tasks (e.g. cloudwatch)
     - name: s3_result
       description: Stores the S3 result path after compute
   workspaces:
@@ -55,7 +55,7 @@ spec:
     - name: KUBECONFIG
       value: /config/kubeconfig
   steps:
-  - name: git-clone      
+  - name: git-clone
     image: alpine/git
     workingDir: $(workspaces.source.path)
     script: |
@@ -65,21 +65,21 @@ spec:
       git checkout $(params.cl2-branch)
       git branch
   - name: prepare-loadtest
-    image: golang:1.24
+    image: golang:1.25
     workingDir: $(workspaces.source.path)
     script: |
       S3_RESULT_PATH=$(params.results-bucket)
       echo $S3_RESULT_PATH > $(results.s3_result.path)
-      echo "S3 Path: $S3_RESULT_PATH" 
+      echo "S3 Path: $S3_RESULT_PATH"
       cat > "$(workspaces.source.path)/overrides.yaml" <<EOL
       NODES_PER_NAMESPACE: $(params.nodes-per-namespace)
       PODS_PER_NODE: $(params.pods-per-node)
-      NODE_MODE: master 
+      NODE_MODE: master
       # DNS test settings
       CL2_ENABLE_DNSTESTS: true
       CL2_USE_ADVANCED_DNSTEST: true
 
-      # Note: default setting for dns client pod 
+      # Note: default setting for dns client pod
       #       bydefault the tester create 5 dns client pods
       #       additionally, 1 extra DNS client pod is created for every 100 nodes in the cluster
       CL2_DNS_K8S_HOSTNAMES_PER_CLIENT_QPS: 10
@@ -100,7 +100,7 @@ spec:
       EOL
       cat $(workspaces.source.path)/overrides.yaml
       cp $(workspaces.source.path)/overrides.yaml $(workspaces.results.path)/overrides.yaml
-      
+
       # Enable Prometheus if the remote workspace id is provided
       if [ -n "$(params.amp-workspace-id)" ]; then
       cat << EOF >> $(workspaces.source.path)/perf-tests/clusterloader2/pkg/prometheus/manifests/prometheus-prometheus.yaml
@@ -134,7 +134,7 @@ spec:
             tolerations:
               - key: monitoring
                 operator: Exists
-                effect: NoSchedule  
+                effect: NoSchedule
       EOF
       cat $(workspaces.source.path)/perf-tests/clusterloader2/pkg/prometheus/manifests/0prometheus-operator-deployment.yaml
       # schedule kube-state-pod onto the same node as prometheus
@@ -143,12 +143,12 @@ spec:
             tolerations:
               - key: monitoring
                 operator: Exists
-                effect: NoSchedule  
+                effect: NoSchedule
       EOF
       cat $(workspaces.source.path)/perf-tests/clusterloader2/pkg/prometheus/manifests/exporters/kube-state-metrics/deployment.yaml
 
       fi
-      # Building clusterloader2 binary 
+      # Building clusterloader2 binary
       cd $(workspaces.source.path)/perf-tests/clusterloader2/
       GOOS=linux CGO_ENABLED=0  go build -v -o ./clusterloader ./cmd
   - name: run-loadtest
@@ -195,7 +195,7 @@ spec:
     workingDir: $(workspaces.results.path)
     script: |
       S3_RESULT_PATH=$(cat $(results.s3_result.path))
-      echo "S3 Path: $S3_RESULT_PATH" 
+      echo "S3 Path: $S3_RESULT_PATH"
       aws sts get-caller-identity
       # we expect to see all files from loadtest that clusterloader2 outputs here in this dir
       ls -larth

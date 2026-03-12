@@ -45,7 +45,7 @@ spec:
     description: "number of iterations to run the throughput test for different tiers"
   results:
     - name: datapoint
-      description: Stores the CL2 result that can be consumed by other tasks (e.g. cloudwatch) 
+      description: Stores the CL2 result that can be consumed by other tasks (e.g. cloudwatch)
     - name: s3_result
       description: Stores the S3 result path after compute
   workspaces:
@@ -59,7 +59,7 @@ spec:
     - name: KUBECONFIG
       value: /config/kubeconfig
   steps:
-  - name: git-clone      
+  - name: git-clone
     image: alpine/git
     workingDir: $(workspaces.source.path)
     script: |
@@ -70,12 +70,12 @@ spec:
       git fetch origin --verbose --tags
       git branch
   - name: prepare-loadtest
-    image: golang:1.24
+    image: golang:1.25
     workingDir: $(workspaces.source.path)
     script: |
       S3_RESULT_PATH=$(params.results-bucket)
       echo $S3_RESULT_PATH > $(results.s3_result.path)
-      echo "S3 Path: $S3_RESULT_PATH" 
+      echo "S3 Path: $S3_RESULT_PATH"
       cat > "$(workspaces.source.path)/overrides.yaml" <<EOL
       CL2_SCHEDULER_THROUGHPUT_PODS: $(params.cl2-throughput-pods)
       CL2_DEFAULT_QPS: $(params.cl2-default-qps)
@@ -86,8 +86,8 @@ spec:
 
       cat $(workspaces.source.path)/overrides.yaml
       cp $(workspaces.source.path)/overrides.yaml $(workspaces.results.path)/overrides.yaml
-      
-      # Building clusterloader2 binary 
+
+      # Building clusterloader2 binary
       cd $(workspaces.source.path)/perf-tests/clusterloader2/
       GOOS=linux CGO_ENABLED=0  go build -v -o ./clusterloader ./cmd
   - name: run-loadtest
@@ -146,7 +146,7 @@ spec:
     workingDir: $(workspaces.results.path)
     script: |
       S3_RESULT_PATH=$(cat $(results.s3_result.path))
-      echo "S3 Path: $S3_RESULT_PATH" 
+      echo "S3 Path: $S3_RESULT_PATH"
       aws sts get-caller-identity
       # we expect to see all files from loadtest that clusterloader2 outputs here in this dir
       ls -larth
